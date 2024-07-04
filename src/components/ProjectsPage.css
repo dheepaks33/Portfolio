@@ -1,0 +1,15 @@
+.projects-page {
+  padding: 20px;
+}
+
+.page-title {
+  font-size: 2em;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}

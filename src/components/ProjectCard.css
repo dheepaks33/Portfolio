@@ -1,0 +1,62 @@
+/* ProjectCard.css */
+
+.project-card {
+  background: #abda8b;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  text-align: center;
+  transition: background-color 0.3s, color 0.3s;
+  height: 250px; /* Adjust height as needed */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow-y: auto; /* Enable vertical scrolling */
+  margin-bottom: 20px; /* Add margin to separate cards */
+}
+
+.project-card:hover {
+  background-color: #000000; /* Change background color on hover */
+  color: #fff; /* Change text color on hover */
+}
+
+.project-card:hover .project-title,
+.project-card:hover .project-description,
+.project-card:hover .project-link {
+  color: #fff; /* Ensure text color changes on hover */
+}
+
+.project-title {
+  font-size: 1.5em;
+  margin: 15px 0 10px;
+}
+
+.project-description {
+  font-size: 1em;
+  color: #000; /* Initial color */
+}
+
+.project-link {
+  display: inline-block;
+  margin-top: 10px;
+  text-decoration: none;
+  color: inherit;
+  font-weight: bold;
+}
+
+.project-link:hover {
+  text-decoration: underline;
+}
+
+.projects-page {
+  padding: 20px;
+  overflow-y: auto; /* Enable vertical scrolling */
+  height: calc(100vh - 150px); /* Adjust height as needed */
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
