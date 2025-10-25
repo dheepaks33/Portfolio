@@ -5,7 +5,24 @@ const ExperiencePage = () => {
   return (
     <div className="experience-page">
       <h1>Experience</h1>
-
+      {/* nBase2 Systems Experience */}
+        <div className="experience-details">
+          <h2>Software Development Engineer - nBase2 Systems</h2>
+          <ul>
+            <li>
+              Worked on full-stack web development projects, contributing to both frontend and backend features.
+            </li>
+            <li>
+              Collaborated with senior engineers to design and implement scalable solutions for client requirements.
+            </li>
+            <li>
+              Gained hands-on experience with modern frameworks and cloud technologies.
+            </li>
+            <li>
+              Participated in code reviews and agile development cycles, improving code quality and delivery speed.
+            </li>
+          </ul>
+      </div>
       {/* Experience Details */}
       <div className="experience-details">
         <h2>Student Trainee - Bosch Global Software Technologies</h2>
