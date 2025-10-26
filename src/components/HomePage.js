@@ -13,10 +13,10 @@ const HomePage = () => {
         <img src={avatar} alt="Dheepak S" className="avatar" />
         <h1 className="home-title">Welcome, I'm Dheepak Selvakumar</h1>
         <div className="home-desc">
-          I’m a Software Development Engineer passionate about bridging embedded systems and intelligent computing. With hands-on experience in C/C++, DSP algorithms, and cross-platform integration, I’m now exploring GPU and TPU acceleration for AI/ML development — optimizing models for real-time, edge, and cloud performance.
+          I am a Software Development Engineer passionate about bridging embedded systems and intelligent computing. With hands-on experience in C, C++, DSP algorithms, and cross-platform integration, I am now exploring GPU and TPU acceleration for AI, ML development optimizing models for real-time, edge, and cloud performance.
         </div>
         <div className="home-desc">
-          If you’re working on projects involving AI frameworks, hardware optimization, or performance engineering, I’d love to collaborate.
+          If you are working on projects involving AI frameworks, hardware optimization, or performance engineering, I would love to collaborate.
         </div>
         <div className="home-contact">
           <span className="contact-icon"><SiGmail /></span>
