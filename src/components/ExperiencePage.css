@@ -8,17 +8,18 @@
   }
   
   .experience-details {
-    background: #abda8b;
+     background: #0a7de3;
+    color: #fff;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(34,143,198,0.10);
     padding: 20px;
     margin-bottom: 20px;
-    transition: background-color 0.3s, color 0.3s; /* Transition for background and text color */
+    transition: background-color 0.3s, color 0.3s;
   }
   
   .experience-details:hover {
-    background-color: #000; /* Change background color on hover */
-    color: #fff; /* Change text color on hover */
+    background-color: #001660;
+    color: #fff;
   }
   
   .experience-details .experience-title {
@@ -33,16 +34,17 @@
   }
   
   .certificate-section {
-    background: #abda8b;
+    background: #0a7de3;
+    color: #fff;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(34,143,198,0.10);
     padding: 20px;
-    transition: background-color 0.3s; /* Transition for background color */
+    transition: background-color 0.3s;
   }
   
   .certificate-section:hover {
     color: #fff;
-    background-color: #000; /* Change background color on hover */
+    background-color: #001660;
   }
   
   .certificate-section h2 {
@@ -58,7 +60,7 @@
   .certificate-section a {
     display: inline-block;
     padding: 10px 20px;
-    background-color: #0977c6;
+    background-color: #2032ba;
     color: #ffffff;
     text-decoration: none;
     border-radius: 5px;
@@ -66,7 +68,7 @@
   }
   
   .certificate-section a:hover {
-    background-color: #095ec6;
+    background-color: #5692dc;
     color: #ffffff;
   }
   

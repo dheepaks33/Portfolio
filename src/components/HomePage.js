@@ -1,19 +1,32 @@
+
 import React from 'react';
-import './HomePage.css'; // Import the CSS file
-import avatar from '../images/avatar.png'; // Correct the image import path
+import './HomePage.css';
+import avatar from '../images/avatar.png';
+import { FaLinkedin, FaGithub } from 'react-icons/fa';
+import { SiGmail } from 'react-icons/si';
+
 
 const HomePage = () => {
   return (
     <div className="home-page">
-      <div className="content-container">
-        <img src={avatar} alt="Dheepak S" className="avatar"/>
-        <div className="text-container">
-          <h1>Welcome, I'm Dheepak</h1>
-          <p>
-            An aspiring software engineer and recent graduate from PSG Institute of Technology and Applied Research in the ECE domain.
-            I am seeking a dynamic role in a forward-thinking organization where I can enhance my technical, communication, interpersonal, 
-            and management skills, while contributing to the company's growth and innovation in future technologies.
-          </p>
+      <div className="card-home">
+        <img src={avatar} alt="Dheepak S" className="avatar" />
+        <h1 className="home-title">Welcome, I'm Dheepak Selvakumar</h1>
+        <div className="home-desc">
+          I’m a Software Development Engineer passionate about bridging embedded systems and intelligent computing. With hands-on experience in C/C++, DSP algorithms, and cross-platform integration, I’m now exploring GPU and TPU acceleration for AI/ML development — optimizing models for real-time, edge, and cloud performance.
+        </div>
+        <div className="home-desc">
+          If you’re working on projects involving AI frameworks, hardware optimization, or performance engineering, I’d love to collaborate.
+        </div>
+        <div className="home-contact">
+          <span className="contact-icon"><SiGmail /></span>
+          <a href="mailto:dheepaks33@gmail.com">dheepaks33@gmail.com</a>
+          <a href="https://www.linkedin.com/in/dheepaks33/" target="_blank" rel="noopener noreferrer" title="LinkedIn">
+            <span className="contact-icon"><FaLinkedin /></span>
+          </a>
+          <a href="https://github.com/dheepaks33/" target="_blank" rel="noopener noreferrer" title="GitHub">
+            <span className="contact-icon"><FaGithub /></span>
+          </a>
         </div>
       </div>
     </div>
