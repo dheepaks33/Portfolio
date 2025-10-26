@@ -1,7 +1,7 @@
 /* ProjectCard.css */
 
 .project-card {
-  background: #abda8b;
+  background: #0a7de3;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 20px;
@@ -13,10 +13,11 @@
   justify-content: center;
   overflow-y: auto; /* Enable vertical scrolling */
   margin-bottom: 20px; /* Add margin to separate cards */
+  color: #ffffff;
 }
 
 .project-card:hover {
-  background-color: #000000; /* Change background color on hover */
+  background-color: #001660; /* Change background color on hover */
   color: #fff; /* Change text color on hover */
 }
 
@@ -33,7 +34,7 @@
 
 .project-description {
   font-size: 1em;
-  color: #000; /* Initial color */
+  color: #ffffff;/* Initial color */
 }
 
 .project-link {

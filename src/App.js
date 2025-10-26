@@ -4,12 +4,12 @@ import './App.css';
 import HomePage from './components/HomePage';
 import ProjectsPage from './components/ProjectsPage';
 import ExperiencePage from './components/ExperiencePage';
-import CodingProfilesPage from './components/CodingProfilesPage';
+
 
 // Import images using require
-import linkedinIcon from './images/linkedin.png';
-import gmailIcon from './images/Gmail.png';
-import githubIcon from './images/github_title.png';
+
+import { FaLinkedin, FaGithub } from 'react-icons/fa';
+import { SiGmail } from 'react-icons/si';
 
 const App = () => {
   const [activePage, setActivePage] = React.useState('home');
@@ -22,8 +22,6 @@ const App = () => {
         return <ProjectsPage />;
       case 'experience':
         return <ExperiencePage />;
-      case 'codingProfiles':
-        return <CodingProfilesPage />;
       default:
         return <HomePage />;
     }
@@ -40,7 +38,7 @@ const App = () => {
       const xWalk = (x / app.offsetWidth * walk - walk / 2).toFixed(2);
       const yWalk = (y / app.offsetHeight * walk - walk / 2).toFixed(2);
 
-      app.style.boxShadow = `${xWalk}px ${yWalk}px 15px rgba(0, 255, 0, 0.5)`;
+      app.style.boxShadow = `${xWalk}px ${yWalk}px 15px rgba(26, 151, 235, 0.5)`;
     };
 
     document.addEventListener('mousemove', handleMouseMove);
@@ -57,20 +55,19 @@ const App = () => {
           <div className="left">
             <ul>
               <li><a href="#home" onClick={() => setActivePage('home')}>DS.</a></li>
-              <li><a href="#projects" onClick={() => setActivePage('projects')}>Projects</a></li>
               <li><a href="#experience" onClick={() => setActivePage('experience')}>Experience</a></li>
-              <li><a href="#codingProfiles" onClick={() => setActivePage('codingProfiles')}>Coding Profiles</a></li>
+              <li><a href="#projects" onClick={() => setActivePage('projects')}>Projects</a></li>
             </ul>
           </div>
           <div className="right">
-            <a href="https://www.linkedin.com/in/dheepaks33/" target="_blank" rel="noopener noreferrer">
-              <img src={linkedinIcon} alt="LinkedIn" className="social-icon" />
+            <a href="https://www.linkedin.com/in/dheepaks33/" target="_blank" rel="noopener noreferrer" title="LinkedIn">
+              <FaLinkedin className="social-icon" style={{ color: '#0077b5' }} />
             </a>
-            <a href="mailto:dheepaks33@gmail.com">
-              <img src={gmailIcon} alt="Mail" className="social-icon" />
+            <a href="mailto:dheepaks33@gmail.com" title="Gmail">
+              <SiGmail className="social-icon" style={{ color: '#ea4335' }} />
             </a>
-            <a href="https://github.com/dheepaks33/" target="_blank" rel="noopener noreferrer">
-              <img src={githubIcon} alt="GitHub" className="social-icon" />
+            <a href="https://github.com/dheepaks33/" target="_blank" rel="noopener noreferrer" title="GitHub" >
+              <FaGithub className="social-icon" style={{ color: '#232526', marginRight: '10px' }} />
             </a>
           </div>
         </div>

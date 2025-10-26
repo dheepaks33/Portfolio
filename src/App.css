@@ -1,53 +1,89 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Montserrat:wght@700&family=Inter:wght@400;700&display=swap');
+
 
 body, html {
   margin: 0;
   padding: 0;
-  font-family: 'Roboto', sans-serif;
-  background: #000000; /* Solid black background */
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  font-family: 'Inter', 'Roboto', sans-serif;
+  background: linear-gradient(135deg, #232526 0%, #4d88bd 100%);
+  min-height: 100vh;
+  color: #232526;
 }
+
 
 .app {
   position: relative;
-  width: 90vw;
-  height: 90vh;
+  width: 95vw;
+  min-height: 90vh;
   max-width: 1200px;
-  max-height: 800px;
-  border: 10px solid #fff;
-  border-radius: 20px;
-  background-color: #fff;
+  margin: 30px auto;
+  border-radius: 24px;
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 8px 32px rgba(34, 34, 34, 0.15);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  z-index: 1; /* Ensure this has a higher z-index than the shadow */
+  z-index: 1;
 }
 
+
 .navbar {
+  position: sticky;
+  top: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  height: 60px; /* Increased height */
-  padding: 0; /* Removed padding to avoid margin under navbar */
-  background-color: #abda8b; /* Updated navbar background color */
-  border-bottom: 2px solid #76b583; /* Updated border color */
+  height: 64px;
+  border-bottom: 2px solid #576dfb;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(34,34,34,0.08);
 }
+
 
 .navbar ul {
   list-style-type: none;
-  padding: 0;
+  padding: 0 24px;
   margin: 0;
   display: flex;
-  gap: 25px;
-  padding-left: 10px; /* Add padding to move the items to the right */
+  gap: 32px;
 }
 
+  /* Add more styles for navbar items, hover, and active states */
 .navbar ul li {
   margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 1.1em;
+  letter-spacing: 0.5px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.navbar ul li a {
+  color: #232526;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.navbar ul li a:hover, .navbar ul li a.active {
+  color: #000000;
+}
+
+/* Card base style for all sections */
+.card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(34,34,34,0.08);
+  padding: 24px;
+  margin: 24px 0;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.card:hover {
+  box-shadow: 0 8px 32px rgba(171,218,139,0.18);
+  transform: translateY(-2px) scale(1.01);
 }
 
 .navbar ul li a {
@@ -100,8 +136,13 @@ body, html {
   align-items: center;
 }
 
+
 .social-icon {
-  margin-left: 20px; /* Adjust as needed to increase the space between icons */
+  font-size: 2em;
+  margin-left: 18px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  vertical-align: middle;
+  cursor: pointer;
 }
 
 .right {
@@ -111,8 +152,10 @@ body, html {
   flex-grow: 1; /* Allow the right section to take up remaining space */
 }
 
+
 .social-icon:hover {
-  transform: scale(1.1); /* Optional: Add hover effect */
+  transform: scale(1.18);
+  box-shadow: 0 2px 8px rgba(0, 49, 112, 0.448);
 }
 
 /* New styles for CodingProfilesPage */
@@ -139,9 +182,10 @@ body, html {
   max-width: 800px;
 }
 
+
 .profile-box {
-  background-color: #abda8b;
-  color: #000;
+  background-color: #FF0000;
+  color: #fff;
   padding: 20px;
   text-align: center;
   text-decoration: none;
@@ -151,6 +195,6 @@ body, html {
 }
 
 .profile-box:hover {
-  background-color: #000;
+  background-color: #ff0000;
   color: #fff;
 }
