@@ -1,5 +1,8 @@
 // Small progressive enhancements. The page reads fine without any of this.
 
+import { isTyping, jumpTo } from './nav';
+import { copyText } from './toast';
+
 // Reveal blocks as they scroll into view.
 function setupReveal() {
   const items = document.querySelectorAll<HTMLElement>('[data-reveal]');
@@ -109,7 +112,117 @@ function setupTooltips() {
   window.addEventListener('scroll', hide, { passive: true });
 }
 
+// Numbers count up the first time they scroll into view. Elements already on
+// screen at load keep their value; the static HTML always has the real number.
+function setupCountUp() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+
+  const format = (template: string, raw: string, value: number, decimals: number) => {
+    const text = raw.includes(',')
+      ? value.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+      : value.toFixed(decimals);
+    return template.replace(raw, text);
+  };
+
+  const animate = (el: HTMLElement, final: string, raw: string, target: number, decimals: number) => {
+    const start = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - start) / 900);
+      const eased = 1 - (1 - p) ** 3;
+      el.textContent = p < 1 ? format(final, raw, target * eased, decimals) : final;
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  };
+
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        io.unobserve(e.target);
+        const el = e.target as HTMLElement;
+        animate(el, el.dataset.countFinal!, el.dataset.countRaw!, Number(el.dataset.countTarget), Number(el.dataset.countDecimals));
+      }
+    },
+    { threshold: 0.6 },
+  );
+
+  document.querySelectorAll<HTMLElement>('[data-count]').forEach((el) => {
+    const final = el.textContent ?? '';
+    const match = final.match(/\d[\d,]*(\.\d+)?/);
+    if (!match || el.getBoundingClientRect().top < window.innerHeight) return;
+    const raw = match[0];
+    const decimals = match[1] ? match[1].length - 1 : 0;
+    Object.assign(el.dataset, {
+      countFinal: final,
+      countRaw: raw,
+      countTarget: raw.replace(/,/g, ''),
+      countDecimals: String(decimals),
+    });
+    el.textContent = format(final, raw, 0, decimals);
+    io.observe(el);
+  });
+}
+
+// Keys 0–7 jump to the section at that address.
+function setupSectionKeys() {
+  const ids = [...document.querySelectorAll<HTMLAnchorElement>('[data-rail-link]')].map((a) => a.dataset.railLink!);
+  document.addEventListener('keydown', (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target)) return;
+    const n = Number(e.key);
+    if (e.key.length === 1 && Number.isInteger(n) && ids[n]) {
+      e.preventDefault();
+      jumpTo(ids[n]);
+    }
+  });
+}
+
+// Reading progress in the header, and a "program counter" in the rail: the
+// address of the section you're in plus how far through it you are.
+function setupProgress() {
+  const bar = document.querySelector<HTMLElement>('[data-progress]');
+  const pc = document.querySelector<HTMLElement>('[data-pc]');
+  const sections = [...document.querySelectorAll<HTMLElement>('main > section[id]')];
+  let queued = false;
+
+  const update = () => {
+    queued = false;
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    if (bar) bar.style.transform = `scaleX(${max > 0 ? Math.min(1, window.scrollY / max) : 0})`;
+    if (!pc || !sections.length) return;
+    const probe = window.innerHeight * 0.45;
+    let index = 0;
+    sections.forEach((s, i) => {
+      if (s.getBoundingClientRect().top <= probe) index = i;
+    });
+    const rect = sections[index].getBoundingClientRect();
+    const within = Math.min(0.999, Math.max(0, (probe - rect.top) / Math.max(1, rect.height)));
+    const address = index * 0x100 + Math.floor(within * 0x100);
+    pc.textContent = `0x${address.toString(16).toUpperCase().padStart(4, '0')}`;
+  };
+
+  const queue = () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(update);
+  };
+  update();
+  window.addEventListener('scroll', queue, { passive: true });
+  window.addEventListener('resize', queue);
+}
+
+// Copy buttons, e.g. the email address in Contact.
+function setupCopy() {
+  document.querySelectorAll<HTMLElement>('[data-copy]').forEach((el) =>
+    el.addEventListener('click', () => copyText(el.dataset.copy!, el.dataset.copyLabel)),
+  );
+}
+
 setupReveal();
 setupRail();
 setupChain();
 setupTooltips();
+setupCountUp();
+setupSectionKeys();
+setupProgress();
+setupCopy();

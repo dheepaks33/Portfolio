@@ -16,6 +16,14 @@ import { sections } from '../data/sections';
       ))
     }
   </ol>
+  <p class="pc" aria-hidden="true" title="Your position on the page, as a program counter">
+    <span class="pc-label">PC</span>
+    <span class="pc-value" data-pc>0x0000</span>
+  </p>
+  <p class="hint" aria-hidden="true">
+    <span><kbd>0</kbd>–<kbd>7</kbd> jump</span>
+    <span><kbd data-cmdk-key>Ctrl K</kbd> menu</span>
+  </p>
 </nav>
 
 <style>
@@ -62,5 +70,45 @@ import { sections } from '../data/sections';
 
   .addr {
     font-variant-numeric: tabular-nums;
+  }
+
+  .pc {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-top: 22px;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+  }
+
+  .pc-label {
+    padding: 0 5px;
+    border-radius: 3px;
+    background: var(--ink);
+    color: var(--bg);
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
+  }
+
+  .pc-value {
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hint {
+    display: grid;
+    gap: 6px;
+    margin-top: 12px;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  .hint kbd {
+    font-size: 0.64rem;
+  }
+
+  :global(html:not(.js)) .pc,
+  :global(html:not(.js)) .hint {
+    display: none;
   }
 </style>

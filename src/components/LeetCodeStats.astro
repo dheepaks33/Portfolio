@@ -20,7 +20,7 @@ const rows = (['easy', 'medium', 'hard'] as const).map((k) => ({
 
 <div class="lc">
   <p class="hero">
-    <span class="figure">{nf.format(solved.all)}</span>
+    <span class="figure" data-count>{nf.format(solved.all)}</span>
     <span class="caption">problems solved on <a href={leetcode.url} rel="noopener">LeetCode</a></span>
   </p>
 
@@ -59,15 +59,15 @@ const rows = (['easy', 'medium', 'hard'] as const).map((k) => ({
       <dl class="contest">
         <div>
           <dt>Contest rating</dt>
-          <dd>{nf.format(contest.rating)}</dd>
+          <dd data-count>{nf.format(contest.rating)}</dd>
         </div>
         <div>
           <dt>Global standing</dt>
-          <dd>Top {contest.topPercentage.toFixed(1)}%</dd>
+          <dd data-count>Top {contest.topPercentage.toFixed(1)}%</dd>
         </div>
         <div>
           <dt>Contests</dt>
-          <dd>{contest.attended}</dd>
+          <dd data-count>{contest.attended}</dd>
         </div>
       </dl>
     )

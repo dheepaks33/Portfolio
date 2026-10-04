@@ -1,91 +1,168 @@
 ---
-// A logic-analyzer style I²C trace that spells "DS": START, 0x44 'D', ACK,
-// 0x53 'S', ACK, STOP. Data changes while SCL is low and is stable while high.
+// Logic-analyzer style I²C trace. Renders "DS" at build time; in the browser the
+// TX field re-encodes whatever the visitor types and a probe cursor decodes bits.
+import { buildTrace, describeTrace, encode, HEIGHT, LANES } from '../lib/i2c';
 
-const P = 22; // one bit period
-const T = 1.6; // edge slant
-const X0 = 34; // waveform start (lane names sit left of this)
-const SCL = { high: 10, low: 28 };
-const SDA = { high: 46, low: 64 };
-
-const byte = (v: number) => Array.from({ length: 8 }, (_, i) => Boolean((v >> (7 - i)) & 1));
-const bits = [...byte(0x44), false, ...byte(0x53), false]; // two bytes, each ACKed (SDA low)
-
-const startX = X0 + 12; // SDA falls while SCL is high
-const clk0 = X0 + 24; // SCL falls: first bit period starts
-const end = clk0 + bits.length * P;
-const stopX = end + P / 2 + 8; // SDA rises while SCL is high
-const width = stopX + 26;
-
-function wave(level: boolean, events: [number, boolean][], y: { high: number; low: number }) {
-  let d = `M${X0} ${level ? y.high : y.low}`;
-  for (const [x, next] of events) {
-    if (next === level) continue;
-    d += ` H${x} L${x + T} ${next ? y.high : y.low}`;
-    level = next;
-  }
-  return `${d} H${width - 4}`;
-}
-
-const sclEvents: [number, boolean][] = [[clk0, false]];
-bits.forEach((_, i) => {
-  const p = clk0 + i * P;
-  sclEvents.push([p + P / 2, true], [p + P, false]);
-});
-sclEvents.push([end + P / 2, true]);
-
-const sdaEvents: [number, boolean][] = [[startX, false]];
-bits.forEach((bit, i) => sdaEvents.push([clk0 + i * P + 3, bit]));
-sdaEvents.push([stopX, true]);
-
-const sclPath = wave(true, sclEvents, SCL);
-const sdaPath = wave(true, sdaEvents, SDA);
-
-const labels = [
-  { x: startX, text: 'S', kind: 'cond' },
-  { x: clk0 + 4 * P, text: "0x44 'D'", kind: 'byte' },
-  { x: clk0 + 8.5 * P, text: 'A', kind: 'ack' },
-  { x: clk0 + 13 * P, text: "0x53 'S'", kind: 'byte' },
-  { x: clk0 + 17.5 * P, text: 'A', kind: 'ack' },
-  { x: stopX, text: 'P', kind: 'cond' },
-];
-const brackets = [
-  [clk0 + 2, clk0 + 8 * P - 2],
-  [clk0 + 9 * P + 2, clk0 + 17 * P - 2],
-];
+const DEFAULT_TEXT = 'DS';
+const trace = buildTrace(encode(DEFAULT_TEXT));
+const ariaLabel = (text: string) => `I2C bus trace sending "${text}" as ${encode(text).length} bytes`;
 ---
 
-<figure class="trace">
-  <svg
-    viewBox={`0 0 ${width} 96`}
-    role="img"
-    aria-label="I2C bus trace decoding to the bytes 0x44 and 0x53, the letters D and S"
-  >
-    <text class="lane" x="0" y={SCL.low - 3}>SCL</text>
-    <text class="lane" x="0" y={SDA.low - 3}>SDA</text>
+<figure class="trace animate" data-i2c style={`--trace-w: ${trace.width}`}>
+  <div class="scope" data-i2c-scope>
+    <svg viewBox={`0 0 ${trace.width} ${HEIGHT}`} role="img" aria-label={ariaLabel(DEFAULT_TEXT)} data-i2c-svg>
+      <text class="lane" x="0" y={LANES.scl.low - 3}>SCL</text>
+      <text class="lane" x="0" y={LANES.sda.low - 3}>SDA</text>
 
-    <path class="wire scl" d={sclPath} pathLength="1"></path>
-    <path class="wire sda" d={sdaPath} pathLength="1"></path>
+      <path class="wire scl" d={trace.scl} pathLength="1" data-wire="scl"></path>
+      <path class="wire sda" d={trace.sda} pathLength="1" data-wire="sda"></path>
 
-    {
-      brackets.map(([a, b]) => (
-        <path class="bracket" d={`M${a} 74 V77 H${b} V74`} />
-      ))
-    }
-    {
-      labels.map((l) => (
-        <text class:list={['decode', l.kind]} x={l.x} y="90" text-anchor="middle">
-          {l.text}
-        </text>
-      ))
-    }
-  </svg>
+      <g data-brackets>
+        {trace.brackets.map(([a, b]) => <path class="bracket" d={`M${a} 74 V77 H${b} V74`} />)}
+      </g>
+      <g data-labels>
+        {
+          trace.labels.map((l) => (
+            <text class={`decode ${l.kind}`} x={l.x} y="90" text-anchor="middle">
+              {l.text}
+            </text>
+          ))
+        }
+      </g>
+      <line class="cursor" x1="0" x2="0" y1="4" y2="70" data-cursor visibility="hidden"></line>
+    </svg>
+    <p class="probe" data-probe aria-hidden="true" hidden></p>
+  </div>
+
+  <figcaption class="tx">
+    <label class="tx-label" for="tx-input">TX</label>
+    <input
+      id="tx-input"
+      class="tx-input"
+      type="text"
+      value={DEFAULT_TEXT}
+      maxlength="4"
+      autocomplete="off"
+      autocapitalize="off"
+      spellcheck="false"
+      aria-describedby="tx-meta tx-hint"
+      data-tx
+    />
+    <output id="tx-meta" class="tx-meta" for="tx-input" data-tx-meta>{describeTrace(trace)}</output>
+    <span id="tx-hint" class="tx-hint">type up to 4 characters to put them on the bus</span>
+  </figcaption>
 </figure>
+
+<script>
+  import { BIT_TIME_US, buildTrace, byteLabel, describeTrace, encode, HEIGHT, PERIOD, type Trace } from '../lib/i2c';
+
+  const fig = document.querySelector<HTMLElement>('[data-i2c]');
+  const svg = fig?.querySelector<SVGSVGElement>('[data-i2c-svg]');
+  const input = fig?.querySelector<HTMLInputElement>('[data-tx]');
+
+  if (fig && svg && input) {
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+    const scope = fig.querySelector<HTMLElement>('[data-i2c-scope]')!;
+    const scl = svg.querySelector<SVGPathElement>('[data-wire="scl"]')!;
+    const sda = svg.querySelector<SVGPathElement>('[data-wire="sda"]')!;
+    const labels = svg.querySelector<SVGGElement>('[data-labels]')!;
+    const brackets = svg.querySelector<SVGGElement>('[data-brackets]')!;
+    const cursor = svg.querySelector<SVGLineElement>('[data-cursor]')!;
+    const probe = fig.querySelector<HTMLElement>('[data-probe]')!;
+    const meta = fig.querySelector<HTMLOutputElement>('[data-tx-meta]')!;
+
+    let trace: Trace = buildTrace(encode(input.value));
+    let frame = 0;
+
+    const render = () => {
+      const text = input.value;
+      trace = buildTrace(encode(text));
+      svg.setAttribute('viewBox', `0 0 ${trace.width} ${HEIGHT}`);
+      svg.setAttribute('aria-label', `I2C bus trace sending "${text}" as ${trace.bytes.length} bytes`);
+      fig.style.setProperty('--trace-w', String(trace.width));
+      scl.setAttribute('d', trace.scl);
+      sda.setAttribute('d', trace.sda);
+
+      brackets.replaceChildren(
+        ...trace.brackets.map(([a, b]) => {
+          const p = document.createElementNS(SVG_NS, 'path');
+          p.setAttribute('class', 'bracket');
+          p.setAttribute('d', `M${a} 74 V77 H${b} V74`);
+          return p;
+        }),
+      );
+      labels.replaceChildren(
+        ...trace.labels.map((l) => {
+          const t = document.createElementNS(SVG_NS, 'text');
+          t.setAttribute('class', `decode ${l.kind}`);
+          t.setAttribute('x', String(l.x));
+          t.setAttribute('y', '90');
+          t.setAttribute('text-anchor', 'middle');
+          t.textContent = l.text;
+          return t;
+        }),
+      );
+      meta.value = describeTrace(trace);
+
+      // Replay the draw-in, faster than the first time.
+      fig.classList.remove('animate');
+      void fig.getBoundingClientRect();
+      fig.classList.add('animate', 'quick');
+    };
+
+    input.addEventListener('input', () => {
+      const clean = [...input.value].filter((ch) => ch >= ' ' && ch <= '~').join('');
+      if (clean !== input.value) input.value = clean;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(render);
+    });
+
+    // Probe cursor: decode the bit under the pointer.
+    const describe = (x: number) => {
+      if (x < trace.clockStart) return 'START · SDA falls while SCL is high';
+      if (x >= trace.clockEnd) return 'STOP · SDA rises while SCL is high';
+      const bit = trace.bits[Math.min(trace.bits.length - 1, Math.floor((x - trace.clockStart) / PERIOD))];
+      const t = ((x - trace.clockStart) / PERIOD) * BIT_TIME_US;
+      const what = bit.bit < 0 ? `ACK after ${byteLabel(trace.bytes[bit.byte])}` : `bit ${bit.bit} of ${byteLabel(trace.bytes[bit.byte])}`;
+      return `t ${t.toFixed(0)} µs · SDA ${bit.value ? 1 : 0} · ${what}`;
+    };
+
+    scope.addEventListener('pointermove', (e) => {
+      const rect = svg.getBoundingClientRect();
+      const px = e.clientX - rect.left;
+      if (px < 0 || px > rect.width) return;
+      const x = (px / rect.width) * trace.width;
+      if (x < 30) {
+        cursor.setAttribute('visibility', 'hidden');
+        probe.hidden = true;
+        return;
+      }
+      cursor.setAttribute('x1', String(x));
+      cursor.setAttribute('x2', String(x));
+      cursor.setAttribute('visibility', 'visible');
+      probe.textContent = describe(x);
+      probe.hidden = false;
+      const half = probe.offsetWidth / 2;
+      probe.style.left = `${Math.min(Math.max(px, half), rect.width - half)}px`;
+    });
+
+    scope.addEventListener('pointerleave', () => {
+      cursor.setAttribute('visibility', 'hidden');
+      probe.hidden = true;
+    });
+  }
+</script>
 
 <style>
   .trace {
     margin: 0;
-    max-width: 620px;
+    max-width: min(100%, calc(var(--trace-w) * 1.3px));
+  }
+
+  .scope {
+    position: relative;
+    touch-action: pan-y;
+    cursor: crosshair;
   }
 
   svg {
@@ -109,14 +186,15 @@ const brackets = [
     stroke: var(--accent);
   }
 
-  .bracket {
+  .trace :global(.bracket) {
     fill: none;
     stroke: var(--rule-strong);
     stroke-width: 1;
     vector-effect: non-scaling-stroke;
   }
 
-  text {
+  text,
+  .trace :global(.decode) {
     font-family: var(--font-mono);
     fill: var(--muted);
   }
@@ -126,33 +204,113 @@ const brackets = [
     letter-spacing: 0.06em;
   }
 
-  .decode {
+  .trace :global(.decode) {
     font-size: 8.5px;
   }
 
-  .decode.byte {
+  .trace :global(.decode.byte) {
     fill: var(--ink-2);
   }
 
-  .decode.cond {
+  .trace :global(.decode.cond) {
     fill: var(--accent);
   }
 
+  .cursor {
+    stroke: var(--ink);
+    stroke-width: 1;
+    stroke-dasharray: 2 2;
+    vector-effect: non-scaling-stroke;
+    pointer-events: none;
+  }
+
+  .probe {
+    position: absolute;
+    top: -30px;
+    transform: translateX(-50%);
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--ink);
+    color: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  /* TX field */
+  .tx {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 12px;
+    margin-top: 10px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  :global(html:not(.js)) .tx {
+    display: none;
+  }
+
+  .tx-label {
+    padding: 1px 6px;
+    border-radius: 3px;
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+  }
+
+  .tx-input {
+    width: 6ch;
+    padding: 2px 2px 1px;
+    border: 0;
+    border-bottom: 1px dashed var(--rule-strong);
+    border-radius: 0;
+    background: transparent;
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 16px; /* 16px stops iOS zooming on focus */
+    letter-spacing: 0.08em;
+  }
+
+  .tx-input:focus-visible {
+    outline: none;
+    border-bottom: 1px solid var(--accent);
+  }
+
+  .tx-meta {
+    color: var(--ink-2);
+  }
+
   @media (prefers-reduced-motion: no-preference) {
-    .wire {
+    .trace.animate .wire {
       stroke-dasharray: 1;
       stroke-dashoffset: 1;
       animation: draw 2.4s cubic-bezier(0.45, 0, 0.2, 1) 0.25s forwards;
     }
 
-    .sda {
+    .trace.animate .sda {
       animation-delay: 0.4s;
     }
 
-    .decode,
-    .bracket {
+    .trace.animate :global(.decode),
+    .trace.animate :global(.bracket) {
       opacity: 0;
       animation: fade 0.6s ease 1.9s forwards;
+    }
+
+    .trace.animate.quick .wire {
+      animation-duration: 0.7s;
+      animation-delay: 0s;
+    }
+
+    .trace.animate.quick :global(.decode),
+    .trace.animate.quick :global(.bracket) {
+      animation-duration: 0.3s;
+      animation-delay: 0.45s;
     }
   }
 

@@ -23,7 +23,7 @@ const stack = c?.stack ?? (r?.language ? [r.language] : []);
     {
       c?.metric && (
         <p class="metric">
-          <span class="value">{c.metric.value}</span>
+          <span class="value" data-count>{c.metric.value}</span>
           <span class="label">{c.metric.label}</span>
         </p>
       )
@@ -72,6 +72,20 @@ const stack = c?.stack ?? (r?.language ? [r.language] : []);
     gap: 12px;
     padding: 22px 0 26px;
     border-top: 1px solid var(--ink);
+    transition: border-color 0.25s ease;
+  }
+
+  .project:hover {
+    border-top-color: var(--accent);
+  }
+
+  footer a span {
+    display: inline-block;
+    transition: transform 0.2s ease;
+  }
+
+  footer a:hover span {
+    transform: translate(2px, -2px);
   }
 
   /* Wrappers only matter for the wide layout; normally children flow as one column. */

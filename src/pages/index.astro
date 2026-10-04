@@ -7,6 +7,8 @@ import RegisterRail from '../components/RegisterRail.astro';
 import SectionHead from '../components/SectionHead.astro';
 import I2CTrace from '../components/I2CTrace.astro';
 import SignalChain from '../components/SignalChain.astro';
+import DspLab from '../components/DspLab.astro';
+import CommandPalette from '../components/CommandPalette.astro';
 import ExperienceItem from '../components/ExperienceItem.astro';
 import Toolbox from '../components/Toolbox.astro';
 import ProjectCard from '../components/ProjectCard.astro';
@@ -66,6 +68,7 @@ const publicRepoCount = featuredProjects.length + archiveProjects.length;
           lede="At nBase2 I worked on every stage of a Bluetooth audio pipeline: the algorithms running on the DSP, the buses and drivers that reach it, and the app engineers use to tune it."
         />
         <SignalChain />
+        <DspLab />
       </section>
 
       <!-- 0x02 Experience -->
@@ -117,7 +120,7 @@ const publicRepoCount = featuredProjects.length + archiveProjects.length;
             <dl class="gh-stats">
               <div>
                 <dt>Public repositories</dt>
-                <dd>{publicRepoCount}</dd>
+                <dd data-count>{publicRepoCount}</dd>
               </div>
               {
                 lastPushed && (
@@ -223,7 +226,16 @@ const publicRepoCount = featuredProjects.length + archiveProjects.length;
           <Image src={avatar} alt="" width={72} height={72} densities={[1, 2]} class="avatar" />
           <div>
             <a class="email display" href={`mailto:${profile.email}`}>{profile.email}</a>
-            <p class="muted">{profile.location}</p>
+            <p class="contact-meta">
+              <span class="muted">{profile.location}</span>
+              <button type="button" class="copy" data-copy={profile.email} data-copy-label="email address">
+                <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+                  <rect x="5.5" y="5.5" width="8" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"></rect>
+                  <path d="M10.5 3.5v-.5A1.5 1.5 0 0 0 9 1.5H4A1.5 1.5 0 0 0 2.5 3v5A1.5 1.5 0 0 0 4 9.5h.5" fill="none" stroke="currentColor" stroke-width="1.3"></path>
+                </svg>
+                Copy email
+              </button>
+            </p>
           </div>
         </div>
         <ul class="contact-links" data-reveal>
@@ -237,6 +249,8 @@ const publicRepoCount = featuredProjects.length + archiveProjects.length;
   </div>
 
   <SiteFooter />
+  <CommandPalette />
+  <div class="toast" role="status" aria-live="polite" data-toast></div>
 </Base>
 
 <script>
@@ -491,6 +505,40 @@ const publicRepoCount = featuredProjects.length + archiveProjects.length;
     border-radius: 50%;
     object-fit: cover;
     filter: grayscale(0.25);
+  }
+
+  .contact-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 16px;
+    margin-top: 4px;
+  }
+
+  .copy {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border: 1px solid var(--rule-strong);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink-2);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition:
+      border-color 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .copy:hover {
+    border-color: var(--accent);
+    color: var(--ink);
+  }
+
+  :global(html:not(.js)) .copy {
+    display: none;
   }
 
   .email {

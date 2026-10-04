@@ -1,18 +1,51 @@
 ---
+import { execSync } from 'node:child_process';
 import { profile } from '../data/profile';
 import { live } from '../lib/live';
 import { formatDate } from '../lib/format';
 
-const year = new Date(live.syncedAt).getUTCFullYear();
+const built = new Date();
+
+// Commit this build came from: provided by GitHub Actions, or read from git locally.
+let sha = process.env.GITHUB_SHA ?? '';
+if (!sha) {
+  try {
+    sha = execSync('git rev-parse HEAD', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+  } catch {}
+}
+const commitUrl = sha ? `https://github.com/dheepaks33/Portfolio/commit/${sha}` : null;
+
+// Next scheduled sync: Mondays 03:00 UTC (08:30 IST), see .github/workflows/site.yml.
+const next = new Date(built);
+next.setUTCHours(3, 0, 0, 0);
+next.setUTCDate(next.getUTCDate() + ((1 - next.getUTCDay() + 7) % 7));
+if (next <= built) next.setUTCDate(next.getUTCDate() + 7);
+const nextSync = `Mon ${formatDate(next.toISOString())}, 08:30 IST`;
 ---
 
 <footer class="site-footer">
   <div class="inner">
-    <p>© {year} {profile.name}</p>
-    <p class="muted">
-      Built with Astro. Rebuilt every Monday from GitHub and LeetCode data, last synced {formatDate(live.syncedAt)}.
-    </p>
-    <a href="#intro" class="top mono">0x00 ↑</a>
+    <div class="boot">
+      <p>
+        <span class="ok">[ OK ]</span> Built {formatDate(built.toISOString())}{
+          commitUrl && (
+            <Fragment>
+              {' '}
+              from <a href={commitUrl} rel="noopener">{sha.slice(0, 7)}</a>
+            </Fragment>
+          )
+        } with Astro
+      </p>
+      <p><span class="ok">[ OK ]</span> GitHub and LeetCode data synced {formatDate(live.syncedAt)}</p>
+      <p><span class="ok">[ OK ]</span> No trackers, no cookies</p>
+      <p><span class="wait">[WAIT]</span> Next sync {nextSync}</p>
+    </div>
+
+    <div class="colophon">
+      <p>© {built.getUTCFullYear()} {profile.name}</p>
+      <p class="muted">Set in Instrument Serif and IBM Plex. Built with Astro, Web Audio and View Transitions.</p>
+      <a href="#intro" class="top">0x00 ↑</a>
+    </div>
   </div>
 </footer>
 
@@ -22,23 +55,59 @@ const year = new Date(live.syncedAt).getUTCFullYear();
   }
 
   .inner {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 8px 24px;
+    display: grid;
+    gap: 24px;
     max-width: 1240px;
     margin: 0 auto;
     padding: 28px var(--gutter) 36px;
     font-size: 0.875rem;
   }
 
+  .boot {
+    display: grid;
+    gap: 2px;
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    color: var(--muted);
+  }
+
+  .boot a {
+    color: var(--ink-2);
+  }
+
+  .ok {
+    color: var(--accent);
+    white-space: pre;
+  }
+
+  .wait {
+    color: var(--ink-2);
+    white-space: pre;
+  }
+
+  .colophon {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px 24px;
+  }
+
   .top {
     margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
     text-decoration: none;
     color: var(--muted);
   }
 
   .top:hover {
     color: var(--accent);
+  }
+
+  @media (min-width: 860px) {
+    .inner {
+      grid-template-columns: 1fr 1fr;
+      align-items: end;
+    }
   }
 </style>

@@ -1,0 +1,505 @@
+---
+// "Bench test": a playable Web Audio model of the signal chain above.
+// Behaviour lives in src/scripts/dsp-lab.ts; this file is markup and styling.
+
+const switches = [
+  { id: 'eq', num: 1, label: 'EQ', on: true },
+  { id: 'widen', num: 2, label: 'Widen', on: true },
+  { id: 'src', num: 3, label: 'SRC', on: false },
+  { id: 'aa', num: 4, label: 'AA', on: true },
+];
+const bands = ['Low shelf', 'Peak', 'High shelf'];
+---
+
+<section class="lab" data-dsp-lab data-state="idle" aria-labelledby="lab-title">
+  <header class="lab-head" data-reveal>
+    <p class="eyebrow">Bench test</p>
+    <h3 id="lab-title" class="display">Run the chain in your browser.</h3>
+    <p class="lab-lede">
+      A Web Audio model of the same stages. Press play, drag the numbered EQ points, flip the DIP switches, and
+      watch the spectrum and stereo field respond. Turn on <strong>SRC</strong>, then switch off <strong>AA</strong> to hear what aliasing sounds like.
+    </p>
+  </header>
+
+  <div class="bench" data-reveal>
+    <div class="screen scope-screen">
+      <canvas class="scope" data-lab-scope role="img" aria-label="Frequency response of the three-band EQ drawn over a live spectrum"></canvas>
+      <div class="handles">
+        {
+          bands.map((name, i) => (
+            <button
+              type="button"
+              class="handle"
+              data-lab-handle={i}
+              role="slider"
+              aria-label={`${name} band gain`}
+              aria-valuemin="-12"
+              aria-valuemax="12"
+              aria-valuenow="0"
+              aria-describedby="lab-keys"
+            >
+              {i + 1}
+            </button>
+          ))
+        }
+      </div>
+      <p class="screen-label" aria-hidden="true">Response · spectrum</p>
+    </div>
+
+    <div class="screen gonio-screen">
+      <canvas class="gonio" data-lab-gonio role="img" aria-label="Goniometer showing the stereo field of the output"></canvas>
+      <p class="screen-label" aria-hidden="true">Stereo field</p>
+      <p class="corr" aria-hidden="true">corr <span data-lab-corr>—</span></p>
+    </div>
+
+    <div class="ctrl">
+      <button type="button" class="transport" data-lab-play aria-pressed="false">
+        <svg class="icon icon-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2.8v10.4L13 8z"></path></svg>
+        <svg class="icon icon-stop" viewBox="0 0 16 16" aria-hidden="true"><rect x="3.5" y="3.5" width="9" height="9" rx="1.5"></rect></svg>
+        <span data-lab-play-label>Play</span>
+      </button>
+
+      <div class="dip" role="group" aria-label="Signal chain switches">
+        <span class="dip-on" aria-hidden="true">ON ▲</span>
+        <div class="dip-bank">
+          {
+            switches.map((s) => (
+              <button type="button" class="dip-sw" role="switch" aria-checked={s.on ? 'true' : 'false'} data-lab-switch={s.id}>
+                <span class="dip-cell" aria-hidden="true">
+                  <span class="dip-slot">
+                    <span class="dip-lever" />
+                  </span>
+                  <span class="dip-num">{s.num}</span>
+                </span>
+                <span class="dip-label">{s.label}</span>
+              </button>
+            ))
+          }
+        </div>
+      </div>
+
+      <label class="width">
+        <span class="width-label">Stereo width</span>
+        <input type="range" min="0" max="200" step="5" value="160" data-lab-width />
+        <output data-lab-width-out>160%</output>
+      </label>
+
+      <p class="readout" data-lab-readout aria-hidden="true">BAND 2 · PEAK · 1.00 kHz · −2.0 dB</p>
+    </div>
+  </div>
+
+  <div class="lab-foot">
+    <p id="lab-keys">Drag a numbered point, or focus it and use the arrow keys: ↑↓ for gain, ←→ for frequency, Shift for bigger steps.</p>
+    <p data-lab-rate>SRC: 48 kHz ÷ 3 = 16 kHz, the Bluetooth wideband-speech rate. AA: 4th-order Butterworth at 6.8 kHz.</p>
+    <p>The production versions ran in C on Cadence HiFi DSPs; this is a browser re-creation for illustration.</p>
+  </div>
+  <p class="lab-status" role="status" data-lab-status></p>
+</section>
+
+<script>
+  import '../scripts/dsp-lab';
+</script>
+
+<style>
+  .lab {
+    --scr-bg: #111114;
+    --scr-grid: rgba(255, 255, 255, 0.06);
+    --scr-axis: rgba(255, 255, 255, 0.16);
+    --scr-text: rgba(236, 234, 228, 0.5);
+    --scr-trace: #f0a35e;
+    --scr-wash: rgba(240, 163, 94, 0.15);
+    --scr-dim: rgba(236, 234, 228, 0.32);
+    --scr-fade: rgba(17, 17, 20, 0.3);
+    --scr-hatch: rgba(240, 163, 94, 0.32);
+
+    margin-top: clamp(56px, 8vw, 96px);
+  }
+
+  :global(html:not(.js)) .lab {
+    display: none;
+  }
+
+  .lab-head {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .lab-head h3 {
+    font-size: clamp(1.8rem, 3.6vw, 2.6rem);
+  }
+
+  .lab-lede {
+    max-width: var(--measure);
+    color: var(--ink-2);
+  }
+
+  .bench {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'scope'
+      'gonio'
+      'ctrl';
+  }
+
+  @media (min-width: 900px) {
+    .bench {
+      grid-template-columns: minmax(0, 1fr) 248px;
+      grid-template-areas:
+        'scope gonio'
+        'ctrl ctrl';
+    }
+  }
+
+  /* Instrument screens stay dark in both themes */
+  .screen {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius);
+    background: var(--scr-bg);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+      0 1px 0 var(--rule);
+  }
+
+  .scope-screen {
+    grid-area: scope;
+    aspect-ratio: 4 / 3;
+  }
+
+  .gonio-screen {
+    grid-area: gonio;
+    height: 220px;
+  }
+
+  @media (min-width: 560px) {
+    .scope-screen {
+      aspect-ratio: 16 / 9;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .scope-screen {
+      aspect-ratio: auto;
+      height: 300px;
+    }
+
+    .gonio-screen {
+      height: 300px;
+    }
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .screen-label,
+  .corr {
+    position: absolute;
+    top: 7px;
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--scr-text);
+    pointer-events: none;
+  }
+
+  .screen-label {
+    left: 10px;
+  }
+
+  .corr {
+    right: 10px;
+    letter-spacing: 0.04em;
+  }
+
+  .corr span {
+    color: var(--scr-trace);
+  }
+
+  /* EQ handles */
+  .handles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .handle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--scr-trace);
+    color: var(--scr-bg);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 500;
+    box-shadow: 0 0 0 2px var(--scr-bg);
+    cursor: grab;
+    pointer-events: auto;
+    touch-action: none;
+    transition:
+      box-shadow 0.15s ease,
+      background 0.15s ease;
+  }
+
+  /* A larger hit area than the visible dot */
+  .handle::before {
+    content: '';
+    position: absolute;
+    inset: -11px;
+    border-radius: 50%;
+  }
+
+  .handle:active {
+    cursor: grabbing;
+  }
+
+  .handle.is-active {
+    box-shadow:
+      0 0 0 2px var(--scr-bg),
+      0 0 0 5px rgba(240, 163, 94, 0.4);
+  }
+
+  .handle.is-bypassed {
+    background: var(--scr-dim);
+  }
+
+  .handle:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+  }
+
+  /* Controls */
+  .ctrl {
+    grid-area: ctrl;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 18px 28px;
+    padding: 14px 0 4px;
+  }
+
+  .transport {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 20px 0 16px;
+    border: 1px solid var(--ink);
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--bg);
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  .transport:hover,
+  .transport[aria-pressed='true'] {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .icon {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+  }
+
+  .icon-stop,
+  .transport[aria-pressed='true'] .icon-play {
+    display: none;
+  }
+
+  .transport[aria-pressed='true'] .icon-stop {
+    display: block;
+  }
+
+  /* DIP switch bank */
+  .dip {
+    display: grid;
+    gap: 3px;
+  }
+
+  .dip-on {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  .dip-bank {
+    display: flex;
+  }
+
+  .dip-sw {
+    display: grid;
+    justify-items: center;
+    gap: 5px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .dip-sw:disabled {
+    cursor: not-allowed;
+  }
+
+  .dip-sw:focus-visible {
+    outline: none;
+  }
+
+  .dip-sw:focus-visible .dip-cell {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+  }
+
+  .dip-cell {
+    display: grid;
+    justify-items: center;
+    gap: 3px;
+    width: 34px;
+    padding: 6px 0 4px;
+    background: var(--accent);
+  }
+
+  .dip-sw:first-child .dip-cell {
+    border-radius: 4px 0 0 4px;
+  }
+
+  .dip-sw:last-child .dip-cell {
+    border-radius: 0 4px 4px 0;
+  }
+
+  .dip-slot {
+    position: relative;
+    width: 14px;
+    height: 28px;
+    border-radius: 2px;
+    background: rgba(0, 0, 0, 0.32);
+  }
+
+  .dip-lever {
+    position: absolute;
+    left: 1px;
+    right: 1px;
+    bottom: 1px;
+    height: 12px;
+    border-radius: 1px;
+    background: var(--bg);
+    transition: transform 0.18s cubic-bezier(0.3, 0.7, 0.3, 1);
+  }
+
+  .dip-sw[aria-checked='true'] .dip-lever {
+    transform: translateY(-14px);
+  }
+
+  .dip-sw:disabled .dip-cell {
+    filter: saturate(0.2);
+    opacity: 0.55;
+  }
+
+  .dip-num {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    line-height: 1;
+    color: var(--bg);
+  }
+
+  .dip-label {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-2);
+  }
+
+  .dip-sw[aria-checked='true']:not(:disabled) .dip-label {
+    color: var(--ink);
+  }
+
+  /* Width */
+  .width {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 4px 12px;
+    min-width: 220px;
+    flex: 1 1 220px;
+    max-width: 320px;
+  }
+
+  .width-label {
+    grid-column: 1 / -1;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .width input {
+    grid-column: 1 / 3;
+    width: 100%;
+    accent-color: var(--accent);
+  }
+
+  .width output {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    min-width: 4ch;
+    text-align: right;
+  }
+
+  .readout {
+    flex: 1 1 260px;
+    margin: 0;
+    padding: 8px 12px;
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    background: var(--bg-raised);
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .lab-foot {
+    display: grid;
+    gap: 2px;
+    max-width: 80ch;
+    margin-top: 14px;
+    font-size: 0.84rem;
+    color: var(--muted);
+  }
+
+  .lab-status:empty {
+    display: none;
+  }
+
+  .lab-status {
+    margin-top: 8px;
+    font-size: 0.9rem;
+    color: var(--accent);
+  }
+</style>

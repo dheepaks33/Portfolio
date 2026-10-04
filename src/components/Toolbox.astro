@@ -1,78 +1,252 @@
 ---
-import { interests, toolbox } from '../data/skills';
+// The toolbox drawn as a chip: embedded blocks and software blocks on either side
+// of a system bus, inside a package with pins.
+import { interests, soc } from '../data/skills';
 ---
 
-<div class="toolbox">
-  {
-    toolbox.map((g, i) => (
-      <section class:list={['group', { 'group--lead': i === 0 }]} data-reveal aria-labelledby={`tb-${i}`}>
-        <h3 id={`tb-${i}`} class="eyebrow">{g.group}</h3>
-        <p class="note">{g.note}</p>
-        <ul>
-          {g.items.map((item) => (
-            <li>{item}</li>
-          ))}
-        </ul>
-      </section>
-    ))
-  }
-</div>
-<p class="interests" data-reveal>
-  <span class="eyebrow">Interest</span>
-  {interests.join(' · ')}: how the hardware underneath shapes the software on top.
-</p>
+<figure class="soc" data-reveal>
+  <div class="package">
+    <span class="pins pins--left" aria-hidden="true"></span>
+    <span class="pins pins--right" aria-hidden="true"></span>
+    <div class="die">
+      <p class="marking" aria-hidden="true">
+        <span class="pin1"></span>
+        <span>U1</span>
+        <span>DS33</span>
+        <span class="muted">embedded-sw · rev 2026</span>
+      </p>
+      {
+        soc.map((lane, i) => (
+          <Fragment>
+            {i > 0 && (
+              <div class="bus" aria-hidden="true">
+                <span>system bus</span>
+              </div>
+            )}
+            <div class:list={['lane', `lane--${lane.lane}`]}>
+              <h3 class="sr-only">{lane.label}</h3>
+              {lane.blocks.map((b) => (
+                <section class="block">
+                  <h4 class="block-name">{b.name}</h4>
+                  <ul>
+                    {b.items.map((item) => (
+                      <li>{item}</li>
+                    ))}
+                  </ul>
+                </section>
+              ))}
+            </div>
+          </Fragment>
+        ))
+      }
+    </div>
+  </div>
+  <figcaption class="interest">
+    <span class="eyebrow">Interest</span>
+    {interests.join(' · ')}: how the hardware underneath shapes the software on top.
+  </figcaption>
+</figure>
 
 <style>
-  .toolbox {
+  .soc {
+    margin: 0;
+  }
+
+  /* Package with pins on all four sides */
+  .package {
+    position: relative;
+    padding: 12px;
+  }
+
+  .package::before,
+  .package::after,
+  .pins {
+    content: '';
+    position: absolute;
+    pointer-events: none;
+  }
+
+  .package::before,
+  .package::after {
+    left: 44px;
+    right: 44px;
+    height: 12px;
+    background: repeating-linear-gradient(90deg, var(--rule-strong) 0 8px, transparent 8px 22px);
+  }
+
+  .package::before {
+    top: 0;
+  }
+
+  .package::after {
+    bottom: 0;
+  }
+
+  .pins {
+    top: 44px;
+    bottom: 44px;
+    width: 12px;
+    background: repeating-linear-gradient(180deg, var(--rule-strong) 0 8px, transparent 8px 22px);
+  }
+
+  .pins--left {
+    left: 0;
+  }
+
+  .pins--right {
+    right: 0;
+  }
+
+  .die {
+    position: relative;
+    padding: 16px clamp(14px, 2.4vw, 22px) 20px;
+    border: 1.5px solid var(--ink);
+    border-radius: 10px;
+    background: var(--bg-raised);
+  }
+
+  .marking {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 14px;
+    margin-bottom: 16px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+
+  .pin1 {
+    width: 9px;
+    height: 9px;
+    border: 1.5px solid var(--ink-2);
+    border-radius: 50%;
+  }
+
+  /* Blocks */
+  .lane {
     display: grid;
-    gap: 36px;
+    gap: 12px;
   }
 
-  .group h3 {
-    color: var(--ink);
+  .block {
+    position: relative;
+    padding: 12px 14px 14px;
+    border: 1px solid var(--rule-strong);
+    border-radius: 6px;
+    background: var(--bg);
+    transition: border-color 0.2s ease;
   }
 
-  .group--lead h3 {
+  .block:hover {
+    border-color: var(--accent);
+  }
+
+  .block-name {
+    margin-bottom: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+
+  .lane--embedded .block {
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--rule-strong));
+  }
+
+  .lane--embedded .block-name {
     color: var(--accent);
   }
 
-  .note {
-    margin: 6px 0 14px;
-    font-size: 0.9rem;
-    color: var(--muted);
-  }
-
   ul {
+    display: grid;
+    gap: 3px;
     list-style: none;
-    border-top: 1px solid var(--rule);
   }
 
-  li {
-    padding: 9px 0;
-    border-bottom: 1px solid var(--rule);
-    font-size: 1rem;
-  }
-
-  .group--lead li {
+  .lane--embedded li {
     font-family: var(--font-display);
-    font-size: 1.3rem;
-    line-height: 1.25;
-    padding: 8px 0;
+    font-size: 1.28rem;
+    line-height: 1.2;
   }
 
-  .interests {
+  .lane--software li {
+    font-size: 0.95rem;
+    line-height: 1.45;
+    color: var(--ink-2);
+  }
+
+  /* System bus between the two lanes */
+  .bus {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 40px;
+  }
+
+  .bus::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 5px;
+    transform: translateY(-50%);
+    border-top: 1.5px solid var(--accent);
+    border-bottom: 1.5px solid var(--accent);
+  }
+
+  .bus span {
+    position: relative;
+    padding: 0 10px;
+    background: var(--bg-raised);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  @media (min-width: 860px) {
+    .lane {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    /* Keep the label between the block taps (which sit at 1/6, 1/2 and 5/6) */
+    .bus span {
+      left: -16.667%;
+    }
+
+    /* Each block taps the bus */
+    .lane--embedded .block::after,
+    .lane--software .block::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      width: 1.5px;
+      height: 18px;
+      background: var(--accent);
+    }
+
+    .lane--embedded .block::after {
+      bottom: -19px;
+    }
+
+    .lane--software .block::before {
+      top: -19px;
+    }
+  }
+
+  .interest {
     display: flex;
     flex-wrap: wrap;
     gap: 6px 14px;
     align-items: baseline;
-    margin-top: 40px;
+    margin-top: 28px;
     color: var(--ink-2);
-  }
-
-  @media (min-width: 860px) {
-    .toolbox {
-      grid-template-columns: 1.15fr 1fr 1fr;
-      gap: 40px;
-    }
   }
 </style>

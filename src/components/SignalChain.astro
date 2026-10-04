@@ -10,7 +10,7 @@ const facts = [
 ];
 ---
 
-<figure class="chain" data-reveal>
+<figure class="chain" data-reveal data-chain-figure>
   <ol class="flow" aria-label="Audio signal chain I worked on at nBase2 Systems">
     <li class="block" data-chain-block="tool" tabindex="0">
       <span class="stage">Host</span>
@@ -36,10 +36,9 @@ const facts = [
     <li class="block block--dsp" data-chain-block="dsp" tabindex="0">
       <span class="stage">DSP · real-time C</span>
       <span class="algos">
-        <span>EQ</span><span class="arrow" aria-hidden="true">→</span><span>Stereo widening</span><span
-          class="arrow"
-          aria-hidden="true">→</span
-        ><span>Anti-aliasing</span>
+        <span data-algo="eq">EQ</span><span class="arrow" aria-hidden="true">→</span><span data-algo="widen"
+          >Stereo widening</span
+        ><span class="arrow" aria-hidden="true">→</span><span data-algo="aa">Anti-aliasing</span>
       </span>
       <span class="detail">Cadence HiFi instruction set · TI audio DSPs</span>
     </li>
@@ -67,7 +66,7 @@ const facts = [
     facts.map((f) => (
       <div class="fact">
         <dt>{f.label}</dt>
-        <dd class="value">{f.value}</dd>
+        <dd class="value" data-count>{f.value}</dd>
         <dd class="detail">{f.detail}</dd>
       </div>
     ))
@@ -144,6 +143,31 @@ const facts = [
     font-family: var(--font-mono);
     font-size: 0.9rem;
     color: var(--accent);
+  }
+
+  /* Live state from the bench-test lab below */
+  [data-algo] {
+    transition:
+      opacity 0.2s ease,
+      text-decoration-color 0.2s ease;
+    text-decoration: line-through transparent;
+  }
+
+  [data-algo].is-bypassed {
+    opacity: 0.4;
+    text-decoration-color: var(--accent);
+  }
+
+  .chain[data-playing] .block--dsp,
+  .chain[data-playing] .block[data-chain-block='out'] {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .chain[data-playing] .link .line {
+      animation-duration: 0.3s;
+    }
   }
 
   .detail {

@@ -24,11 +24,23 @@ All copy lives in typed data files under `src/data/`, so no component needs to c
 | `profile.ts` | Name, headline, intro, links |
 | `experience.ts` | Roles and bullets. `chain` tags link a bullet to a block in the signal-chain diagram. `hidden: true` keeps a role out of the page |
 | `projects.ts` | Featured order, curated copy per repo, fork allowlist, hidden repos |
-| `skills.ts` | Toolbox groups |
+| `skills.ts` | Toolbox blocks, drawn as a chip diagram |
 | `background.ts` | Education, publication, certifications, achievements |
 | `sections.ts` | Section order and their `0x..` addresses |
 
 After changing the headline, run `npm run og` to regenerate the social preview image (`public/og.png`).
+
+## Interactive pieces
+
+Everything works without JavaScript; these are progressive enhancements.
+
+| Feature | Where |
+| --- | --- |
+| Hero I²C trace: type up to 4 characters to re-encode it; hover for a logic-analyzer probe | `src/components/I2CTrace.astro`, `src/lib/i2c.ts` |
+| Bench-test lab: Web Audio model of the signal chain (3-band EQ, mid/side widening, 16 kHz SRC with a switchable anti-aliasing filter), with frequency response, live spectrum and goniometer | `src/components/DspLab.astro`, `src/scripts/dsp-lab.ts`, `src/lib/biquad.ts` |
+| Command menu (⌘K / Ctrl+K or `/`), and keys `0`–`7` to jump to sections | `src/components/CommandPalette.astro`, `src/scripts/nav.ts` |
+| Theme switch with a View Transitions circular reveal | `src/scripts/theme.ts` |
+| Scroll progress, the rail's "program counter", count-up figures, copy email | `src/scripts/interactions.ts` |
 
 ## Weekly data sync
 
