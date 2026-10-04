@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+import { asset } from '../lib/format';
+---
+
+<Base title="Address not mapped · Dheepak Selvakumar" noindex>
+  <main id="main" class="nf">
+    <p class="eyebrow">Bus fault</p>
+    <h1 class="display">0x404</h1>
+    <p class="msg">That address isn't mapped to anything. The page may have moved.</p>
+    <a class="btn btn--primary" href={asset('')}>Back to 0x00</a>
+  </main>
+</Base>
+
+<style>
+  .nf {
+    display: grid;
+    gap: 18px;
+    place-content: center;
+    justify-items: start;
+    min-height: 100vh;
+    padding: var(--gutter);
+  }
+
+  h1 {
+    font-size: clamp(5rem, 22vw, 12rem);
+    line-height: 0.9;
+    color: var(--accent);
+  }
+
+  .msg {
+    max-width: 40ch;
+    color: var(--ink-2);
+  }
+</style>

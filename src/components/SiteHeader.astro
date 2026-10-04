@@ -1,0 +1,188 @@
+---
+import { profile } from '../data/profile';
+import { asset } from '../lib/format';
+
+const primaryResume = profile.resumes.find((r) => r.primary)!;
+---
+
+<header class="site-header">
+  <div class="inner">
+    <a class="monogram" href="#intro" aria-label={`${profile.name}, back to top`}>
+      <span class="ds">ds</span><span class="dot" aria-hidden="true"></span>
+    </a>
+
+    <nav class="quick" aria-label="Quick links">
+      <a href="#experience">Experience</a>
+      <a href="#projects">Projects</a>
+      <a href="#contact">Contact</a>
+    </nav>
+
+    <div class="actions">
+      <a class="resume" href={asset(primaryResume.file)} download>Résumé</a>
+      <button class="theme-toggle" type="button" aria-label="Switch colour theme" title="Switch colour theme">
+        <svg class="sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
+          <path
+            d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"></path>
+        </svg>
+        <svg class="moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path
+            d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linejoin="round"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<script>
+  const root = document.documentElement;
+  const button = document.querySelector<HTMLButtonElement>('.theme-toggle');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+  const current = () => root.dataset.theme ?? (prefersDark.matches ? 'dark' : 'light');
+
+  button?.addEventListener('click', () => {
+    const next = current() === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
+    try {
+      localStorage.setItem('theme', next);
+    } catch {}
+  });
+
+  // Hairline under the header once the page has scrolled.
+  const header = document.querySelector('.site-header');
+  const onScroll = () => header?.classList.toggle('is-scrolled', window.scrollY > 8);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: var(--header-h);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease;
+  }
+
+  .site-header.is-scrolled {
+    border-bottom-color: var(--rule);
+  }
+
+  .inner {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    max-width: 1240px;
+    height: 100%;
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+
+  .monogram {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 3px;
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    line-height: 1;
+  }
+
+  .monogram .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .quick {
+    display: none;
+    gap: 22px;
+    margin-left: auto;
+    font-size: 0.9rem;
+  }
+
+  .quick a,
+  .resume {
+    text-decoration: none;
+    color: var(--ink-2);
+  }
+
+  .quick a:hover,
+  .resume:hover {
+    color: var(--ink);
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+  }
+
+  .resume {
+    padding: 8px 10px;
+    font-size: 0.9rem;
+  }
+
+  .theme-toggle {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+
+  .theme-toggle:hover {
+    color: var(--ink);
+    background: var(--rule);
+  }
+
+  .moon {
+    display: none;
+  }
+
+  :global(:root[data-theme='dark']) .sun {
+    display: none;
+  }
+
+  :global(:root[data-theme='dark']) .moon {
+    display: block;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .sun {
+      display: none;
+    }
+
+    :global(:root:not([data-theme='light'])) .moon {
+      display: block;
+    }
+  }
+
+  @media (min-width: 720px) {
+    .quick {
+      display: flex;
+    }
+
+    .actions {
+      margin-left: 12px;
+    }
+  }
+</style>

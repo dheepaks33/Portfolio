@@ -1,0 +1,134 @@
+---
+import type { Project } from '../lib/live';
+import { freshness } from '../lib/format';
+
+interface Props {
+  project: Project;
+  index: number;
+}
+
+const { project, index } = Astro.props;
+const c = project.curated;
+const r = project.repo;
+const highlights = c?.highlights ?? [];
+const stack = c?.stack ?? (r?.language ? [r.language] : []);
+---
+
+<article class="project" data-reveal aria-labelledby={`p-${project.name}`}>
+  <p class="index mono">P/{String(index + 1).padStart(2, '0')}</p>
+
+  {
+    c?.metric && (
+      <p class="metric">
+        <span class="value">{c.metric.value}</span>
+        <span class="label">{c.metric.label}</span>
+      </p>
+    )
+  }
+
+  <h3 id={`p-${project.name}`} class="display">{project.title}</h3>
+  <p class="tagline">{project.tagline}</p>
+
+  {
+    highlights.length > 0 && (
+      <ul class="highlights">
+        {highlights.map((h) => (
+          <li>{h}</li>
+        ))}
+      </ul>
+    )
+  }
+
+  <ul class="tags" aria-label="Stack">
+    {stack.map((s) => <li>{s}</li>)}
+  </ul>
+
+  <footer>
+    <a href={project.url} rel="noopener">Code<span aria-hidden="true"> ↗</span></a>
+    {
+      c?.demo && (
+        <a href={c.demo.url} rel="noopener">
+          {c.demo.label}
+          <span aria-hidden="true"> ↗</span>
+        </a>
+      )
+    }
+    <span class="meta mono">
+      {[c?.note, r && `updated ${freshness(r.pushedAt)}`].filter(Boolean).join(' · ')}
+    </span>
+  </footer>
+</article>
+
+<style>
+  .project {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 22px 0 26px;
+    border-top: 1px solid var(--ink);
+  }
+
+  .index {
+    color: var(--muted);
+  }
+
+  .metric {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .metric .value {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 2.4rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--accent);
+  }
+
+  .metric .label {
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+
+  h3 {
+    font-size: clamp(1.7rem, 3vw, 2.1rem);
+  }
+
+  .tagline {
+    color: var(--ink-2);
+    font-size: 1.0625rem;
+  }
+
+  .highlights {
+    display: grid;
+    gap: 8px;
+    padding-left: 1.1em;
+    color: var(--muted);
+    font-size: 0.94rem;
+    line-height: 1.55;
+  }
+
+  .highlights li::marker {
+    color: var(--rule-strong);
+  }
+
+  footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px 18px;
+    margin-top: auto;
+    padding-top: 6px;
+    font-size: 0.94rem;
+    font-weight: 500;
+  }
+
+  .meta {
+    margin-left: auto;
+    font-weight: 400;
+    color: var(--muted);
+  }
+</style>

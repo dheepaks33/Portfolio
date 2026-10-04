@@ -1,0 +1,75 @@
+/* Design tokens. Light "paper" theme by default; dark follows the OS unless the
+   visitor picked one with the toggle (html[data-theme]). */
+
+:root {
+  --font-display: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+
+  --bg: #f6f4ef;
+  --bg-raised: #fbfaf7;
+  --ink: #16161a;
+  --ink-2: #3a3a40;
+  --muted: #5f5f64;
+  --rule: #e2dfd8;
+  --rule-strong: #cfcbc2;
+  --accent: #a65112;
+  --accent-wash: #f3e3d4;
+  --signal: var(--accent);
+
+  /* Copper ramp (validated ordinal, light surface) */
+  --ramp-0: #e8e4dc;
+  --ramp-1: #de9a66;
+  --ramp-2: #c8753a;
+  --ramp-3: #a65112;
+  --ramp-4: #6e300c;
+
+  --radius: 6px;
+  --gutter: clamp(16px, 4vw, 40px);
+  --measure: 66ch;
+  --header-h: 56px;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #121214;
+    --bg-raised: #1a1a1d;
+    --ink: #eceae4;
+    --ink-2: #c9c7c1;
+    --muted: #9a9a9f;
+    --rule: #2a2a2e;
+    --rule-strong: #3a3a3f;
+    --accent: #f0a35e;
+    --accent-wash: #2e2118;
+
+    --ramp-0: #222225;
+    --ramp-1: #7a4420;
+    --ramp-2: #a85c27;
+    --ramp-3: #d77f3a;
+    --ramp-4: #f0a35e;
+
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #121214;
+  --bg-raised: #1a1a1d;
+  --ink: #eceae4;
+  --ink-2: #c9c7c1;
+  --muted: #9a9a9f;
+  --rule: #2a2a2e;
+  --rule-strong: #3a3a3f;
+  --accent: #f0a35e;
+  --accent-wash: #2e2118;
+
+  --ramp-0: #222225;
+  --ramp-1: #7a4420;
+  --ramp-2: #a85c27;
+  --ramp-3: #d77f3a;
+  --ramp-4: #f0a35e;
+
+  color-scheme: dark;
+}

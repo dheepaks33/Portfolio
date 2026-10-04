@@ -1,0 +1,44 @@
+---
+import { profile } from '../data/profile';
+import { live } from '../lib/live';
+import { formatDate } from '../lib/format';
+
+const year = new Date(live.syncedAt).getUTCFullYear();
+---
+
+<footer class="site-footer">
+  <div class="inner">
+    <p>© {year} {profile.name}</p>
+    <p class="muted">
+      Built with Astro. Rebuilt every Monday from GitHub and LeetCode data, last synced {formatDate(live.syncedAt)}.
+    </p>
+    <a href="#intro" class="top mono">0x00 ↑</a>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--rule);
+  }
+
+  .inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px 24px;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 28px var(--gutter) 36px;
+    font-size: 0.875rem;
+  }
+
+  .top {
+    margin-left: auto;
+    text-decoration: none;
+    color: var(--muted);
+  }
+
+  .top:hover {
+    color: var(--accent);
+  }
+</style>

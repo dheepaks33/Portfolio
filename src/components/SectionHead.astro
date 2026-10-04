@@ -1,0 +1,44 @@
+---
+import { section, type SectionId } from '../data/sections';
+
+interface Props {
+  id: SectionId;
+  title: string;
+  lede?: string;
+}
+
+const { id, title, lede } = Astro.props;
+const { addr, label } = section(id);
+---
+
+<header class="section-head" data-reveal>
+  <p class="eyebrow"><span class="addr">{addr}</span> {label}</p>
+  <h2 class="display" id={`${id}-title`}>{title}</h2>
+  {lede && <p class="lede">{lede}</p>}
+</header>
+
+<style>
+  .section-head {
+    display: grid;
+    gap: 14px;
+    margin-bottom: clamp(32px, 5vw, 56px);
+    padding-top: 18px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .addr {
+    color: var(--accent);
+    margin-right: 0.6em;
+  }
+
+  h2 {
+    font-size: clamp(2.1rem, 5vw, 3.4rem);
+    max-width: 20ch;
+  }
+
+  .lede {
+    max-width: var(--measure);
+    color: var(--ink-2);
+    font-size: 1.0625rem;
+  }
+</style>

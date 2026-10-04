@@ -1,0 +1,170 @@
+---
+// A logic-analyzer style I²C trace that spells "DS": START, 0x44 'D', ACK,
+// 0x53 'S', ACK, STOP. Data changes while SCL is low and is stable while high.
+
+const P = 22; // one bit period
+const T = 1.6; // edge slant
+const X0 = 34; // waveform start (lane names sit left of this)
+const SCL = { high: 10, low: 28 };
+const SDA = { high: 46, low: 64 };
+
+const byte = (v: number) => Array.from({ length: 8 }, (_, i) => Boolean((v >> (7 - i)) & 1));
+const bits = [...byte(0x44), false, ...byte(0x53), false]; // two bytes, each ACKed (SDA low)
+
+const startX = X0 + 12; // SDA falls while SCL is high
+const clk0 = X0 + 24; // SCL falls: first bit period starts
+const end = clk0 + bits.length * P;
+const stopX = end + P / 2 + 8; // SDA rises while SCL is high
+const width = stopX + 26;
+
+function wave(level: boolean, events: [number, boolean][], y: { high: number; low: number }) {
+  let d = `M${X0} ${level ? y.high : y.low}`;
+  for (const [x, next] of events) {
+    if (next === level) continue;
+    d += ` H${x} L${x + T} ${next ? y.high : y.low}`;
+    level = next;
+  }
+  return `${d} H${width - 4}`;
+}
+
+const sclEvents: [number, boolean][] = [[clk0, false]];
+bits.forEach((_, i) => {
+  const p = clk0 + i * P;
+  sclEvents.push([p + P / 2, true], [p + P, false]);
+});
+sclEvents.push([end + P / 2, true]);
+
+const sdaEvents: [number, boolean][] = [[startX, false]];
+bits.forEach((bit, i) => sdaEvents.push([clk0 + i * P + 3, bit]));
+sdaEvents.push([stopX, true]);
+
+const sclPath = wave(true, sclEvents, SCL);
+const sdaPath = wave(true, sdaEvents, SDA);
+
+const labels = [
+  { x: startX, text: 'S', kind: 'cond' },
+  { x: clk0 + 4 * P, text: "0x44 'D'", kind: 'byte' },
+  { x: clk0 + 8.5 * P, text: 'A', kind: 'ack' },
+  { x: clk0 + 13 * P, text: "0x53 'S'", kind: 'byte' },
+  { x: clk0 + 17.5 * P, text: 'A', kind: 'ack' },
+  { x: stopX, text: 'P', kind: 'cond' },
+];
+const brackets = [
+  [clk0 + 2, clk0 + 8 * P - 2],
+  [clk0 + 9 * P + 2, clk0 + 17 * P - 2],
+];
+---
+
+<figure class="trace">
+  <svg
+    viewBox={`0 0 ${width} 96`}
+    role="img"
+    aria-label="I2C bus trace decoding to the bytes 0x44 and 0x53, the letters D and S"
+  >
+    <text class="lane" x="0" y={SCL.low - 3}>SCL</text>
+    <text class="lane" x="0" y={SDA.low - 3}>SDA</text>
+
+    <path class="wire scl" d={sclPath} pathLength="1"></path>
+    <path class="wire sda" d={sdaPath} pathLength="1"></path>
+
+    {
+      brackets.map(([a, b]) => (
+        <path class="bracket" d={`M${a} 74 V77 H${b} V74`} />
+      ))
+    }
+    {
+      labels.map((l) => (
+        <text class:list={['decode', l.kind]} x={l.x} y="90" text-anchor="middle">
+          {l.text}
+        </text>
+      ))
+    }
+  </svg>
+</figure>
+
+<style>
+  .trace {
+    margin: 0;
+    max-width: 620px;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .wire {
+    fill: none;
+    stroke-width: 1.4;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+
+  .scl {
+    stroke: var(--muted);
+  }
+
+  .sda {
+    stroke: var(--accent);
+  }
+
+  .bracket {
+    fill: none;
+    stroke: var(--rule-strong);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  text {
+    font-family: var(--font-mono);
+    fill: var(--muted);
+  }
+
+  .lane {
+    font-size: 8px;
+    letter-spacing: 0.06em;
+  }
+
+  .decode {
+    font-size: 8.5px;
+  }
+
+  .decode.byte {
+    fill: var(--ink-2);
+  }
+
+  .decode.cond {
+    fill: var(--accent);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .wire {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      animation: draw 2.4s cubic-bezier(0.45, 0, 0.2, 1) 0.25s forwards;
+    }
+
+    .sda {
+      animation-delay: 0.4s;
+    }
+
+    .decode,
+    .bracket {
+      opacity: 0;
+      animation: fade 0.6s ease 1.9s forwards;
+    }
+  }
+
+  @keyframes draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes fade {
+    to {
+      opacity: 1;
+    }
+  }
+</style>

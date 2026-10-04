@@ -1,0 +1,78 @@
+---
+import { interests, toolbox } from '../data/skills';
+---
+
+<div class="toolbox">
+  {
+    toolbox.map((g, i) => (
+      <section class:list={['group', { 'group--lead': i === 0 }]} data-reveal aria-labelledby={`tb-${i}`}>
+        <h3 id={`tb-${i}`} class="eyebrow">{g.group}</h3>
+        <p class="note">{g.note}</p>
+        <ul>
+          {g.items.map((item) => (
+            <li>{item}</li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+</div>
+<p class="interests" data-reveal>
+  <span class="eyebrow">Interest</span>
+  {interests.join(' · ')}: how the hardware underneath shapes the software on top.
+</p>
+
+<style>
+  .toolbox {
+    display: grid;
+    gap: 36px;
+  }
+
+  .group h3 {
+    color: var(--ink);
+  }
+
+  .group--lead h3 {
+    color: var(--accent);
+  }
+
+  .note {
+    margin: 6px 0 14px;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  ul {
+    list-style: none;
+    border-top: 1px solid var(--rule);
+  }
+
+  li {
+    padding: 9px 0;
+    border-bottom: 1px solid var(--rule);
+    font-size: 1rem;
+  }
+
+  .group--lead li {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    line-height: 1.25;
+    padding: 8px 0;
+  }
+
+  .interests {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    align-items: baseline;
+    margin-top: 40px;
+    color: var(--ink-2);
+  }
+
+  @media (min-width: 860px) {
+    .toolbox {
+      grid-template-columns: 1.15fr 1fr 1fr;
+      gap: 40px;
+    }
+  }
+</style>
