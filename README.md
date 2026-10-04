@@ -21,14 +21,14 @@ All copy lives in typed data files under `src/data/`, so no component needs to c
 
 | File | What it holds |
 | --- | --- |
-| `profile.ts` | Name, headline, intro, links, résumé files |
-| `experience.ts` | Roles and bullets. `chain` tags link a bullet to a block in the signal-chain diagram |
+| `profile.ts` | Name, headline, intro, links |
+| `experience.ts` | Roles and bullets. `chain` tags link a bullet to a block in the signal-chain diagram. `hidden: true` keeps a role out of the page |
 | `projects.ts` | Featured order, curated copy per repo, fork allowlist, hidden repos |
 | `skills.ts` | Toolbox groups |
 | `background.ts` | Education, publication, certifications, achievements |
 | `sections.ts` | Section order and their `0x..` addresses |
 
-Résumé PDFs are in `public/resume/`. After changing the headline, run `npm run og` to regenerate the social preview image (`public/og.png`).
+After changing the headline, run `npm run og` to regenerate the social preview image (`public/og.png`).
 
 ## Weekly data sync
 

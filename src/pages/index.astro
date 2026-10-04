@@ -16,10 +16,10 @@ import ContributionGraph from '../components/ContributionGraph.astro';
 
 import avatar from '../assets/avatar.png';
 import { profile } from '../data/profile';
-import { experience } from '../data/experience';
+import { visibleExperience } from '../data/experience';
 import { achievements, certifications, education, publication } from '../data/background';
 import { archiveProjects, featuredProjects, lastPushed, live } from '../lib/live';
-import { asset, formatDate, formatMonth, relativeTime } from '../lib/format';
+import { formatDate, relativeTime } from '../lib/format';
 
 // The heatmap only earns its space once there's a meaningful amount of public activity.
 const CONTRIBUTION_THRESHOLD = 50;
@@ -46,20 +46,14 @@ const publicRepoCount = featuredProjects.length + archiveProjects.length;
         <p class="intro-text">{profile.intro}</p>
 
         <div class="cta">
-          {
-            profile.resumes.map((r) => (
-              <a class:list={['btn', { 'btn--primary': r.primary }]} href={asset(r.file)} download>
-                {r.label}
-                <span aria-hidden="true">↓</span>
-              </a>
-            ))
-          }
-          <a class="btn" href={`mailto:${profile.email}`}>Email me</a>
+          <a class="btn btn--primary" href={`mailto:${profile.email}`}>Email me</a>
+          <a class="btn" href={profile.links.github} rel="noopener">GitHub<span aria-hidden="true">↗</span></a>
+          <a class="btn" href={profile.links.linkedin} rel="noopener">LinkedIn<span aria-hidden="true">↗</span></a>
         </div>
 
         <p class="status mono">
           <span class="pulse" aria-hidden="true"></span>
-          {profile.currently.title} at {profile.currently.company} since {formatMonth(profile.currently.since)}
+          Live data from GitHub and LeetCode
           <span class="sep" aria-hidden="true">/</span>
           <span class="muted">synced {formatDate(live.syncedAt)}</span>
         </p>
@@ -80,10 +74,10 @@ const publicRepoCount = featuredProjects.length + archiveProjects.length;
         <SectionHead
           id="experience"
           title="Where I've shipped."
-          lede="Embedded audio at the core, with the tooling and product work that comes from owning features end to end."
+          lede="Embedded audio at the core, with the tooling that comes from owning features end to end."
         />
         <div class="roles">
-          {experience.map((role) => <ExperienceItem role={role} />)}
+          {visibleExperience.map((role) => <ExperienceItem role={role} />)}
         </div>
       </section>
 
@@ -235,16 +229,6 @@ const publicRepoCount = featuredProjects.length + archiveProjects.length;
           <li><a href={profile.links.github} rel="noopener">GitHub<span aria-hidden="true"> ↗</span></a></li>
           <li><a href={profile.links.leetcode} rel="noopener">LeetCode<span aria-hidden="true"> ↗</span></a></li>
           <li><a href={profile.links.codechef} rel="noopener">CodeChef<span aria-hidden="true"> ↗</span></a></li>
-          <li>
-            {
-              profile.resumes.map((r) => (
-                <a href={asset(r.file)} download>
-                  {r.label}
-                  <span aria-hidden="true"> ↓</span>
-                </a>
-              ))
-            }
-          </li>
         </ul>
       </section>
     </main>
@@ -523,11 +507,5 @@ const publicRepoCount = featuredProjects.length + archiveProjects.length;
     margin-top: 32px;
     list-style: none;
     font-weight: 500;
-  }
-
-  .contact-links li {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 26px;
   }
 </style>

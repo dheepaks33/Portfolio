@@ -16,6 +16,8 @@ export interface Role {
   summary: string;
   bullets: { text: string; chain?: ChainBlock[] }[];
   stack: string[];
+  /** Kept for the record but not shown on the site. */
+  hidden?: boolean;
 }
 
 export const experience: Role[] = [
@@ -42,6 +44,7 @@ export const experience: Role[] = [
       },
     ],
     stack: ['React Native', 'NestJS', 'Supabase', 'PostgreSQL', 'Redis'],
+    hidden: true,
   },
   {
     id: 'nbase2',
@@ -93,6 +96,8 @@ export const experience: Role[] = [
     stack: ['Python', 'Flask', 'React', 'GitLab CI/CD'],
   },
 ];
+
+export const visibleExperience = experience.filter((r) => !r.hidden);
 
 export const domainLabel: Record<Domain, string> = {
   embedded: 'Embedded',
