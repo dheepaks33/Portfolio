@@ -1,0 +1,151 @@
+---
+// Year of public GitHub contributions as a one-hue heatmap, rendered at build time.
+import type { LiveData } from '../lib/live';
+import { formatDate } from '../lib/format';
+
+interface Props {
+  contributions: NonNullable<LiveData['contributions']>;
+}
+
+const { contributions } = Astro.props;
+const days = contributions.days;
+
+// Quantize non-zero counts into 4 levels by quartile so a few busy days don't flatten the rest.
+const nonZero = days.map((d) => d.count).filter((c) => c > 0).sort((a, b) => a - b);
+const q = (p: number) => nonZero[Math.min(nonZero.length - 1, Math.floor(p * nonZero.length))] ?? 1;
+const cuts = [q(0.25), q(0.5), q(0.75)];
+const level = (c: number) => (c === 0 ? 0 : c <= cuts[0] ? 1 : c <= cuts[1] ? 2 : c <= cuts[2] ? 3 : 4);
+
+// Columns are weeks (Sunday first), rows are weekdays.
+const CELL = 11;
+const GAP = 2;
+const first = new Date(`${days[0].date}T00:00:00Z`);
+const offset = first.getUTCDay();
+const cells = days.map((d, i) => {
+  const slot = i + offset;
+  return { ...d, x: Math.floor(slot / 7) * (CELL + GAP), y: (slot % 7) * (CELL + GAP) + 16, level: level(d.count) };
+});
+const weeks = Math.ceil((days.length + offset) / 7);
+const width = weeks * (CELL + GAP) - GAP;
+const height = 16 + 7 * (CELL + GAP) - GAP;
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const monthLabels = cells
+  .filter((c) => c.date.endsWith('-01') || c === cells[0])
+  .map((c) => ({ x: c.x, text: MONTHS[Number(c.date.slice(5, 7)) - 1] }))
+  .filter((m, i, all) => i === 0 || m.x - all[i - 1].x > 24);
+
+const activeDays = days.filter((d) => d.count > 0).length;
+const busiest = days.reduce((a, b) => (b.count > a.count ? b : a), days[0]);
+const label = `${contributions.total} public contributions in the last year across ${activeDays} active days; busiest day ${formatDate(busiest.date)} with ${busiest.count}.`;
+---
+
+<figure class="contrib">
+  <div class="scroll">
+    <svg viewBox={`0 0 ${width} ${height}`} width={width} height={height} role="img" aria-label={label}>
+      {
+        monthLabels.map((m) => (
+          <text x={m.x} y="10">
+            {m.text}
+          </text>
+        ))
+      }
+      {
+        cells.map((c) => (
+          <rect
+            x={c.x}
+            y={c.y}
+            width={CELL}
+            height={CELL}
+            rx="2"
+            class={`l${c.level}`}
+            data-tip={`${c.count === 0 ? 'No' : c.count} contribution${c.count === 1 ? '' : 's'} · ${formatDate(c.date)}`}
+          />
+        ))
+      }
+    </svg>
+  </div>
+  <figcaption>
+    <span>{label}</span>
+    <span class="legend" aria-hidden="true">
+      Less
+      {[0, 1, 2, 3, 4].map((l) => <i class={`l${l}`} />)}
+      More
+    </span>
+  </figcaption>
+</figure>
+
+<style>
+  .contrib {
+    margin: 0;
+  }
+
+  .scroll {
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  svg {
+    max-width: none;
+  }
+
+  text {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    fill: var(--muted);
+  }
+
+  rect {
+    transition: opacity 0.1s ease;
+  }
+
+  rect:hover {
+    stroke: var(--ink);
+    stroke-width: 1;
+  }
+
+  .l0 {
+    fill: var(--ramp-0);
+    background: var(--ramp-0);
+  }
+  .l1 {
+    fill: var(--ramp-1);
+    background: var(--ramp-1);
+  }
+  .l2 {
+    fill: var(--ramp-2);
+    background: var(--ramp-2);
+  }
+  .l3 {
+    fill: var(--ramp-3);
+    background: var(--ramp-3);
+  }
+  .l4 {
+    fill: var(--ramp-4);
+    background: var(--ramp-4);
+  }
+
+  figcaption {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 20px;
+    margin-top: 12px;
+    font-size: 0.84rem;
+    color: var(--muted);
+  }
+
+  .legend {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+  }
+
+  .legend i {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
+</style>

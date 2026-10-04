@@ -1,0 +1,169 @@
+---
+import { domainLabel, type Role } from '../data/experience';
+import { duration, formatMonth, rich } from '../lib/format';
+
+interface Props {
+  role: Role;
+}
+
+const { role } = Astro.props;
+const period = `${formatMonth(role.start)} – ${role.end ? formatMonth(role.end) : 'Present'}`;
+---
+
+<article class:list={['role', `role--${role.domain}`]} data-reveal aria-labelledby={`role-${role.id}`}>
+  <div class="meta">
+    <p class="period mono">{period}</p>
+    <p class="duration mono">{duration(role.start, role.end)}</p>
+    <p class:list={['badge', `badge--${role.domain}`]}>{domainLabel[role.domain]}</p>
+  </div>
+
+  <div class="body">
+    <h3 id={`role-${role.id}`}>
+      <span class="company display">{role.company}</span>
+      <span class="title">{role.title}</span>
+    </h3>
+    <p class="summary">{role.summary}</p>
+
+    <ul class="bullets">
+      {
+        role.bullets.map((b) => (
+          <li data-chain={b.chain?.join(' ')} tabindex={b.chain ? 0 : undefined}>
+            <span set:html={rich(b.text)} />
+          </li>
+        ))
+      }
+    </ul>
+
+    <ul class="tags" aria-label="Stack">
+      {role.stack.map((s) => <li>{s}</li>)}
+    </ul>
+  </div>
+</article>
+
+<style>
+  .role {
+    display: grid;
+    gap: 14px 40px;
+    padding: 32px 0 36px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .role:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 14px;
+  }
+
+  .period {
+    color: var(--ink);
+  }
+
+  .duration {
+    color: var(--muted);
+  }
+
+  .badge {
+    padding: 1px 8px;
+    border: 1px solid var(--rule-strong);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .badge--embedded {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  h3 {
+    display: grid;
+    gap: 4px;
+  }
+
+  .company {
+    font-size: clamp(1.9rem, 3.4vw, 2.5rem);
+    line-height: 1.05;
+  }
+
+  .role--embedded .company {
+    font-size: clamp(2.2rem, 4.4vw, 3.1rem);
+  }
+
+  .title {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--ink-2);
+  }
+
+  .summary {
+    margin-top: 12px;
+    max-width: var(--measure);
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.3rem;
+    line-height: 1.35;
+    color: var(--ink-2);
+  }
+
+  .bullets {
+    display: grid;
+    gap: 10px;
+    margin: 20px 0 22px;
+    list-style: none;
+    max-width: var(--measure);
+  }
+
+  .bullets li {
+    position: relative;
+    padding: 6px 10px 6px 22px;
+    margin-left: -10px;
+    border-radius: var(--radius);
+    color: var(--ink-2);
+    font-size: 1rem;
+    line-height: 1.6;
+    transition: background 0.2s ease;
+  }
+
+  .bullets li::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 1.05em;
+    width: 6px;
+    height: 1px;
+    background: var(--rule-strong);
+  }
+
+  .bullets li[data-chain]::before {
+    background: var(--accent);
+  }
+
+  .bullets li.is-lit,
+  .bullets li[data-chain]:hover,
+  .bullets li[data-chain]:focus-visible {
+    background: var(--accent-wash);
+    outline: none;
+  }
+
+  @media (min-width: 860px) {
+    .role {
+      grid-template-columns: 180px minmax(0, 1fr);
+    }
+
+    .meta {
+      flex-direction: column;
+      gap: 6px;
+      padding-top: 10px;
+    }
+  }
+</style>

@@ -1,0 +1,166 @@
+---
+import type { LiveData } from '../lib/live';
+
+interface Props {
+  leetcode: NonNullable<LiveData['leetcode']>;
+}
+
+const { leetcode } = Astro.props;
+const { solved, totals, contest } = leetcode;
+const nf = new Intl.NumberFormat('en-US');
+
+const rows = (['easy', 'medium', 'hard'] as const).map((k) => ({
+  key: k,
+  label: k[0].toUpperCase() + k.slice(1),
+  solved: solved[k],
+  total: totals[k],
+  pct: totals[k] ? (solved[k] / totals[k]) * 100 : 0,
+}));
+---
+
+<div class="lc">
+  <p class="hero">
+    <span class="figure">{nf.format(solved.all)}</span>
+    <span class="caption">problems solved on <a href={leetcode.url} rel="noopener">LeetCode</a></span>
+  </p>
+
+  <ul class="meters" aria-label="Solved by difficulty">
+    {
+      rows.map((r) => (
+        <li
+          class="meter"
+          tabindex="0"
+          data-tip={`${nf.format(r.solved)} of ${nf.format(r.total)} ${r.key} problems · ${r.pct.toFixed(1)}%`}
+        >
+          <span class="row">
+            <span class="name">{r.label}</span>
+            <span class="count mono">
+              {nf.format(r.solved)}
+              <span class="muted"> / {nf.format(r.total)}</span>
+            </span>
+          </span>
+          <span
+            class="track"
+            role="meter"
+            aria-label={`${r.label} problems solved`}
+            aria-valuemin="0"
+            aria-valuemax={r.total}
+            aria-valuenow={r.solved}
+          >
+            <span class="fill" style={`--pct: ${Math.max(r.pct, 1.2)}%`} />
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+
+  {
+    contest && (
+      <dl class="contest">
+        <div>
+          <dt>Contest rating</dt>
+          <dd>{nf.format(contest.rating)}</dd>
+        </div>
+        <div>
+          <dt>Global standing</dt>
+          <dd>Top {contest.topPercentage.toFixed(1)}%</dd>
+        </div>
+        <div>
+          <dt>Contests</dt>
+          <dd>{contest.attended}</dd>
+        </div>
+      </dl>
+    )
+  }
+</div>
+
+<style>
+  .lc {
+    display: grid;
+    gap: 28px;
+  }
+
+  .hero {
+    display: grid;
+    gap: 6px;
+  }
+
+  .figure {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: clamp(3.4rem, 8vw, 5rem);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+  }
+
+  .caption {
+    color: var(--ink-2);
+  }
+
+  .meters {
+    display: grid;
+    gap: 16px;
+    list-style: none;
+  }
+
+  .meter {
+    display: grid;
+    gap: 7px;
+    outline-offset: 4px;
+  }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 0.94rem;
+  }
+
+  .count {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .track {
+    position: relative;
+    display: block;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--accent-wash);
+    overflow: hidden;
+  }
+
+  .fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--pct);
+    border-radius: 0 4px 4px 0;
+    background: var(--accent);
+    transition: filter 0.15s ease;
+  }
+
+  .meter:hover .fill,
+  .meter:focus-visible .fill {
+    filter: brightness(1.12);
+  }
+
+  .contest {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .contest dt {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .contest dd {
+    margin: 2px 0 0;
+    font-weight: 600;
+    font-size: 1.35rem;
+    letter-spacing: -0.01em;
+  }
+</style>

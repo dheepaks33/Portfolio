@@ -1,0 +1,66 @@
+---
+import { sections } from '../data/sections';
+---
+
+<nav class="rail" aria-label="Sections">
+  <p class="rail-title eyebrow" aria-hidden="true">Memory map</p>
+  <ol>
+    {
+      sections.map((s) => (
+        <li>
+          <a href={`#${s.id}`} data-rail-link={s.id}>
+            <span class="addr">{s.addr}</span>
+            <span class="label">{s.label}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+
+<style>
+  .rail {
+    position: sticky;
+    top: calc(var(--header-h) + 40px);
+  }
+
+  .rail-title {
+    margin-bottom: 14px;
+    font-size: 0.68rem;
+  }
+
+  ol {
+    list-style: none;
+    border-left: 1px solid var(--rule);
+  }
+
+  a {
+    display: flex;
+    gap: 12px;
+    padding: 5px 0 5px 14px;
+    margin-left: -1px;
+    border-left: 1px solid transparent;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    text-decoration: none;
+    color: var(--muted);
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+
+  a:hover {
+    color: var(--ink);
+  }
+
+  a[aria-current='true'] {
+    color: var(--ink);
+    border-left-color: var(--accent);
+  }
+
+  a[aria-current='true'] .addr {
+    color: var(--accent);
+  }
+
+  .addr {
+    font-variant-numeric: tabular-nums;
+  }
+</style>

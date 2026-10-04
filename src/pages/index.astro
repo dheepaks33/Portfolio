@@ -1,0 +1,533 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import RegisterRail from '../components/RegisterRail.astro';
+import SectionHead from '../components/SectionHead.astro';
+import I2CTrace from '../components/I2CTrace.astro';
+import SignalChain from '../components/SignalChain.astro';
+import ExperienceItem from '../components/ExperienceItem.astro';
+import Toolbox from '../components/Toolbox.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import RepoTable from '../components/RepoTable.astro';
+import LeetCodeStats from '../components/LeetCodeStats.astro';
+import ContributionGraph from '../components/ContributionGraph.astro';
+
+import avatar from '../assets/avatar.png';
+import { profile } from '../data/profile';
+import { experience } from '../data/experience';
+import { achievements, certifications, education, publication } from '../data/background';
+import { archiveProjects, featuredProjects, lastPushed, live } from '../lib/live';
+import { asset, formatDate, formatMonth, relativeTime } from '../lib/format';
+
+// The heatmap only earns its space once there's a meaningful amount of public activity.
+const CONTRIBUTION_THRESHOLD = 50;
+const contributions = live.contributions;
+const showHeatmap = !!contributions && contributions.total >= CONTRIBUTION_THRESHOLD;
+const publicRepoCount = featuredProjects.length + archiveProjects.length;
+---
+
+<Base>
+  <SiteHeader />
+
+  <div class="page">
+    <aside class="rail-col">
+      <RegisterRail />
+    </aside>
+
+    <main id="main">
+      <!-- 0x00 Intro -->
+      <section id="intro" class="intro" aria-labelledby="intro-title">
+        <p class="eyebrow"><span class="addr">0x00</span> {profile.role} · Coimbatore, IN</p>
+        <h1 id="intro-title" class="display name">Dheepak<br />Selvakumar</h1>
+        <p class="headline">{profile.headline}</p>
+        <I2CTrace />
+        <p class="intro-text">{profile.intro}</p>
+
+        <div class="cta">
+          {
+            profile.resumes.map((r) => (
+              <a class:list={['btn', { 'btn--primary': r.primary }]} href={asset(r.file)} download>
+                {r.label}
+                <span aria-hidden="true">↓</span>
+              </a>
+            ))
+          }
+          <a class="btn" href={`mailto:${profile.email}`}>Email me</a>
+        </div>
+
+        <p class="status mono">
+          <span class="pulse" aria-hidden="true"></span>
+          {profile.currently.title} at {profile.currently.company} since {formatMonth(profile.currently.since)}
+          <span class="sep" aria-hidden="true">/</span>
+          <span class="muted">synced {formatDate(live.syncedAt)}</span>
+        </p>
+      </section>
+
+      <!-- 0x01 Signal chain -->
+      <section id="signal-chain" class="section" aria-labelledby="signal-chain-title">
+        <SectionHead
+          id="signal-chain"
+          title="From the tuning app to the speaker."
+          lede="At nBase2 I worked on every stage of a Bluetooth audio pipeline: the algorithms running on the DSP, the buses and drivers that reach it, and the app engineers use to tune it."
+        />
+        <SignalChain />
+      </section>
+
+      <!-- 0x02 Experience -->
+      <section id="experience" class="section" aria-labelledby="experience-title">
+        <SectionHead
+          id="experience"
+          title="Where I've shipped."
+          lede="Embedded audio at the core, with the tooling and product work that comes from owning features end to end."
+        />
+        <div class="roles">
+          {experience.map((role) => <ExperienceItem role={role} />)}
+        </div>
+      </section>
+
+      <!-- 0x03 Toolbox -->
+      <section id="toolbox" class="section" aria-labelledby="toolbox-title">
+        <SectionHead id="toolbox" title="Toolbox." />
+        <Toolbox />
+      </section>
+
+      <!-- 0x04 Projects -->
+      <section id="projects" class="section" aria-labelledby="projects-title">
+        <SectionHead
+          id="projects"
+          title="Things I've built on my own time."
+          lede={`Real-time vision, ML and side projects. Featured work first, then the rest of my ${publicRepoCount} public repositories, refreshed from GitHub every week.`}
+        />
+        <div class="project-grid">
+          {featuredProjects.map((p, i) => <ProjectCard project={p} index={i} />)}
+        </div>
+        {archiveProjects.length > 0 && <RepoTable projects={archiveProjects} />}
+      </section>
+
+      <!-- 0x05 Activity -->
+      <section id="activity" class="section" aria-labelledby="activity-title">
+        <SectionHead
+          id="activity"
+          title="Keeping the edge sharp."
+          lede="Problem-solving practice and public code, pulled in automatically every Monday."
+        />
+        <div class="activity" data-reveal>
+          {live.leetcode && <LeetCodeStats leetcode={live.leetcode} />}
+
+          <div class="gh">
+            <p class="eyebrow">GitHub</p>
+            <dl class="gh-stats">
+              <div>
+                <dt>Public repositories</dt>
+                <dd>{publicRepoCount}</dd>
+              </div>
+              {
+                lastPushed && (
+                  <div>
+                    <dt>Latest push</dt>
+                    <dd>
+                      <a href={lastPushed.url} rel="noopener">
+                        {lastPushed.name.replace(/-/g, ' ')}
+                      </a>
+                      <span class="when mono">{relativeTime(lastPushed.pushedAt)}</span>
+                    </dd>
+                  </div>
+                )
+              }
+            </dl>
+            <p class="gh-note">
+              Most of my professional embedded work lives in private company repositories. What's public is coursework,
+              hackathon builds and side projects.
+            </p>
+            <a class="gh-link" href={profile.links.github} rel="noopener">github.com/dheepaks33<span aria-hidden="true"> ↗</span></a>
+          </div>
+        </div>
+        {
+          showHeatmap && contributions && (
+            <div class="heatmap" data-reveal>
+              <ContributionGraph contributions={contributions} />
+            </div>
+          )
+        }
+      </section>
+
+      <!-- 0x06 Background -->
+      <section id="background" class="section" aria-labelledby="background-title">
+        <SectionHead id="background" title="Background." />
+        <div class="bg-grid">
+          <div class="bg-col" data-reveal>
+            <h3 class="eyebrow">Education</h3>
+            <ul class="plain">
+              {
+                education.map((e) => (
+                  <li>
+                    <p class="item-title">{e.degree}</p>
+                    <p class="muted">
+                      {e.school} · {e.year} · {e.score}
+                    </p>
+                  </li>
+                ))
+              }
+            </ul>
+
+            <h3 class="eyebrow">Publication</h3>
+            <ul class="plain">
+              <li>
+                <p class="item-title">
+                  <a href={publication.url} rel="noopener">{publication.title}</a>
+                </p>
+                <p class="muted">
+                  {publication.venue} · {formatDate(publication.date)}
+                </p>
+              </li>
+            </ul>
+
+            <h3 class="eyebrow">Certification</h3>
+            <ul class="plain">
+              {
+                certifications.map((c) => (
+                  <li>
+                    <p class="item-title">{c.name}</p>
+                    <p class="muted">{c.issuer}</p>
+                  </li>
+                ))
+              }
+              <li>
+                <a href={profile.links.certificates} rel="noopener">All certificates<span aria-hidden="true"> ↗</span></a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="bg-col" data-reveal>
+            <h3 class="eyebrow">Leadership &amp; recognition</h3>
+            <ul class="plain awards">
+              {
+                achievements.map((a) => (
+                  <li>
+                    <p class="item-title">{a.url ? <a href={a.url} rel="noopener">{a.title}</a> : a.title}</p>
+                    <p class="muted">{a.detail}</p>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 0x07 Contact -->
+      <section id="contact" class="section contact" aria-labelledby="contact-title">
+        <SectionHead
+          id="contact"
+          title="Let's talk hardware."
+          lede="Happy to talk about embedded software, DSP work, firmware, or the tools that sit around them."
+        />
+        <div class="contact-card" data-reveal>
+          <Image src={avatar} alt="" width={72} height={72} densities={[1, 2]} class="avatar" />
+          <div>
+            <a class="email display" href={`mailto:${profile.email}`}>{profile.email}</a>
+            <p class="muted">{profile.location}</p>
+          </div>
+        </div>
+        <ul class="contact-links" data-reveal>
+          <li><a href={profile.links.linkedin} rel="noopener">LinkedIn<span aria-hidden="true"> ↗</span></a></li>
+          <li><a href={profile.links.github} rel="noopener">GitHub<span aria-hidden="true"> ↗</span></a></li>
+          <li><a href={profile.links.leetcode} rel="noopener">LeetCode<span aria-hidden="true"> ↗</span></a></li>
+          <li><a href={profile.links.codechef} rel="noopener">CodeChef<span aria-hidden="true"> ↗</span></a></li>
+          <li>
+            {
+              profile.resumes.map((r) => (
+                <a href={asset(r.file)} download>
+                  {r.label}
+                  <span aria-hidden="true"> ↓</span>
+                </a>
+              ))
+            }
+          </li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <SiteFooter />
+</Base>
+
+<script>
+  import '../scripts/interactions';
+</script>
+
+<style>
+  .page {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+
+  .rail-col {
+    display: none;
+  }
+
+  main {
+    min-width: 0;
+  }
+
+  @media (min-width: 1100px) {
+    .page {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 72px;
+    }
+
+    .rail-col {
+      display: block;
+      padding-top: 72px;
+    }
+  }
+
+  .section {
+    padding-block: clamp(72px, 10vw, 128px) 0;
+  }
+
+  /* Intro */
+  .intro {
+    padding-top: clamp(48px, 9vw, 112px);
+  }
+
+  .intro .addr {
+    color: var(--accent);
+    margin-right: 0.6em;
+  }
+
+  .name {
+    margin: 18px 0 22px;
+    font-size: clamp(3.6rem, 12vw, 8.4rem);
+    line-height: 0.9;
+    letter-spacing: -0.025em;
+  }
+
+  .headline {
+    max-width: 24ch;
+    margin-bottom: 30px;
+    font-size: clamp(1.35rem, 2.6vw, 1.9rem);
+    line-height: 1.25;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  .intro-text {
+    max-width: var(--measure);
+    margin-top: 30px;
+    color: var(--ink-2);
+    font-size: 1.0625rem;
+  }
+
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 30px;
+  }
+
+  .status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    margin-top: 32px;
+    color: var(--ink-2);
+  }
+
+  .status .sep {
+    color: var(--rule-strong);
+  }
+
+  .pulse {
+    position: relative;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .pulse::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 1px solid var(--accent);
+      animation: pulse 2.4s ease-out infinite;
+    }
+  }
+
+  @keyframes pulse {
+    from {
+      transform: scale(0.6);
+      opacity: 1;
+    }
+    to {
+      transform: scale(1.6);
+      opacity: 0;
+    }
+  }
+
+  /* Projects */
+  .project-grid {
+    display: grid;
+    gap: 28px 48px;
+  }
+
+  @media (min-width: 860px) {
+    .project-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* Activity */
+  .activity {
+    display: grid;
+    gap: 48px;
+  }
+
+  @media (min-width: 900px) {
+    .activity {
+      grid-template-columns: 1.2fr 1fr;
+      gap: 72px;
+    }
+  }
+
+  .gh {
+    display: grid;
+    gap: 18px;
+    align-content: start;
+  }
+
+  .gh-stats {
+    display: grid;
+    gap: 16px;
+    margin: 0;
+  }
+
+  .gh-stats dt {
+    font-size: 0.84rem;
+    color: var(--muted);
+  }
+
+  .gh-stats dd {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 12px;
+    margin: 2px 0 0;
+    font-size: 1.35rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .gh-stats .when {
+    font-weight: 400;
+    color: var(--muted);
+  }
+
+  .gh-note {
+    max-width: 46ch;
+    font-size: 0.94rem;
+    color: var(--muted);
+  }
+
+  .gh-link {
+    font-family: var(--font-mono);
+    font-size: 0.84rem;
+  }
+
+  .heatmap {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+  }
+
+  /* Background */
+  .bg-grid {
+    display: grid;
+    gap: 40px;
+  }
+
+  @media (min-width: 860px) {
+    .bg-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+    }
+  }
+
+  .bg-col h3 {
+    margin: 0 0 12px;
+  }
+
+  .bg-col h3:not(:first-child) {
+    margin-top: 36px;
+  }
+
+  .plain {
+    list-style: none;
+    border-top: 1px solid var(--rule);
+  }
+
+  .plain li {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .item-title {
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .plain .muted {
+    font-size: 0.9rem;
+  }
+
+  /* Contact */
+  .contact {
+    padding-bottom: clamp(72px, 10vw, 120px);
+  }
+
+  .contact-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .contact-card :global(.avatar) {
+    flex: none;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    filter: grayscale(0.25);
+  }
+
+  .email {
+    display: inline-block;
+    font-size: clamp(1.7rem, 5.4vw, 3.4rem);
+    line-height: 1.1;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
+    overflow-wrap: anywhere;
+  }
+
+  .contact-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 26px;
+    margin-top: 32px;
+    list-style: none;
+    font-weight: 500;
+  }
+
+  .contact-links li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 26px;
+  }
+</style>

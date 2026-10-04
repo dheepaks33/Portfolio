@@ -1,70 +1,53 @@
-# Getting Started with Create React App
+# dheepaks33.github.io/Portfolio
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Personal site of Dheepak Selvakumar, embedded software engineer. Built with
+[Astro](https://astro.build) as a static site and deployed to GitHub Pages.
+GitHub Actions rebuilds it every Monday with fresh GitHub and LeetCode data.
 
-## Available Scripts
+## Develop
 
-In the project directory, you can run:
+```sh
+npm install
+npm run dev       # http://localhost:4321/Portfolio/
+npm run build     # type-check + static build into dist/
+npm run preview   # serve dist/
+```
 
-### `npm start`
+Requires Node 22.12 or newer.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Editing content
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+All copy lives in typed data files under `src/data/`, so no component needs to change:
 
-### `npm test`
+| File | What it holds |
+| --- | --- |
+| `profile.ts` | Name, headline, intro, links, résumé files |
+| `experience.ts` | Roles and bullets. `chain` tags link a bullet to a block in the signal-chain diagram |
+| `projects.ts` | Featured order, curated copy per repo, fork allowlist, hidden repos |
+| `skills.ts` | Toolbox groups |
+| `background.ts` | Education, publication, certifications, achievements |
+| `sections.ts` | Section order and their `0x..` addresses |
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Résumé PDFs are in `public/resume/`. After changing the headline, run `npm run og` to regenerate the social preview image (`public/og.png`).
 
-### `npm run build`
+## Weekly data sync
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+`npm run sync` (`scripts/sync.mjs`) writes `src/data/generated/live.json` with:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- public repos: description, language, topics, last push, README excerpt
+- the contribution calendar
+- LeetCode solved counts and contest rating
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Each source fails soft. If an API call fails, that section keeps its previous value, so the build never breaks. Without a `GITHUB_TOKEN` the sync uses unauthenticated requests, which are limited to 60 per hour.
 
-### `npm run eject`
+`.github/workflows/site.yml` runs on every push to `main`, every Monday at 03:00 UTC, and on demand. It syncs the data, builds the site and deploys to Pages. Scheduled runs also commit the refreshed snapshot.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+You can change what shows up without editing code:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- **New public repos** appear in the "All repositories" table automatically.
+- **Add the GitHub topic `featured`** to a repo to promote it to a featured card. Add curated copy in `projects.ts` for a richer card.
+- **The contribution heatmap** shows up automatically once there are 50 or more public contributions in a year.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### One-time setup
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+In the repo, go to **Settings → Pages → Build and deployment → Source** and choose **GitHub Actions**.
