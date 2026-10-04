@@ -1,9 +1,8 @@
 // Curated copy for repositories, keyed by GitHub repo name. Live stats (language,
 // last push, stars) come from the weekly sync and are merged in src/lib/live.ts.
 //
-// Repos not listed here still appear automatically in the "All repositories"
-// table. Add the GitHub topic `featured` to a repo to feature it without
-// touching this file.
+// Only featured repos are shown. Add the GitHub topic `featured` to a repo to
+// feature it without touching this file.
 
 export interface CuratedProject {
   title: string;
@@ -20,6 +19,7 @@ export const featured: string[] = [
   'Drowsiness-Detection-System',
   'Sentence-Saliency-System',
   'Credit-Card-Fraud-Detection',
+  'Feel-Tweets',
   'Yukta-23',
 ];
 
@@ -62,17 +62,29 @@ export const curated: Record<string, CuratedProject> = {
     ],
     stack: ['Python', 'scikit-learn', 'Jupyter'],
   },
-  'Yukta-23': {
-    title: 'DogCatClassifier',
-    tagline: 'A CNN image classifier built for the Yuktha 2023 ML workshop.',
-    metric: { value: '100+', label: 'workshop participants' },
+  'Feel-Tweets': {
+    title: 'FeelTweets',
+    tagline: 'Tweet sentiment analysis with a Naive Bayes classifier written from scratch.',
+    metric: { value: '99.4%', label: 'accuracy on 2,000 held-out tweets' },
     highlights: [
-      'Convolutional neural network that tells dogs from cats, built as the hands-on piece of a machine learning workshop at PSG iTech.',
+      'Cleans tweets before training: strips retweet markers, links, tickers and hashtag symbols, then tokenizes, drops stop words and stems with Porter.',
+      'Computes the log prior and per-word log likelihoods by hand from word frequencies over 8,000 labelled tweets, a 9,085-word vocabulary, with no ML library doing the fitting.',
     ],
-    stack: ['Python', 'CNN', 'Jupyter'],
+    stack: ['Python', 'NLTK', 'NumPy'],
+  },
+  'Yukta-23': {
+    title: 'Hands-on CNN Workshop',
+    tagline: 'The notebook I taught from at the Yuktha 2023 machine learning workshop.',
+    metric: { value: '100+', label: 'participants taught' },
+    highlights: [
+      'Builds a convolutional neural network in TensorFlow/Keras one step at a time (convolution, pooling, flattening, dense layers, sigmoid output) so participants see what each layer does.',
+      'Covers the full loop: image augmentation with shear, zoom and flips, 25 epochs of training with validation, then a prediction on a single new image.',
+    ],
+    stack: ['Python', 'TensorFlow', 'Keras'],
+    note: 'Workshop material',
   },
 
-  // Archive one-liners for repos without a GitHub description.
+  // One-liners for repos that aren't featured, used if one gets the `featured` topic.
   'Auth-Platform': {
     title: 'Auth Platform',
     tagline: 'FastAPI authentication service with JWT, SQLAlchemy models and Alembic migrations, containerized with Docker.',
@@ -80,10 +92,6 @@ export const curated: Record<string, CuratedProject> = {
   'NLP-with-Disaster-Tweets': {
     title: 'NLP with Disaster Tweets',
     tagline: 'Kaggle challenge: classifying whether a tweet is about a real disaster.',
-  },
-  'Feel-Tweets': {
-    title: 'FeelTweets',
-    tagline: 'Tweet sentiment analysis with Naive Bayes.',
   },
   'Snake-and-Ladder-Game': {
     title: 'Snake and Ladder',

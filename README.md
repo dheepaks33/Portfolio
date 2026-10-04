@@ -44,8 +44,8 @@ Each source fails soft. If an API call fails, that section keeps its previous va
 
 You can change what shows up without editing code:
 
-- **New public repos** appear in the "All repositories" table automatically.
-- **Add the GitHub topic `featured`** to a repo to promote it to a featured card. Add curated copy in `projects.ts` for a richer card.
+- **Add the GitHub topic `featured`** to a repo to show it as a project card. Add curated copy in `projects.ts` for a richer card.
+- **Live repo details** on each card (last push, language) refresh with every sync.
 - **The contribution heatmap** shows up automatically once there are 50 or more public contributions in a year.
 
 ### One-time setup

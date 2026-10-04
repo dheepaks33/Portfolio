@@ -10,7 +10,6 @@ import SignalChain from '../components/SignalChain.astro';
 import ExperienceItem from '../components/ExperienceItem.astro';
 import Toolbox from '../components/Toolbox.astro';
 import ProjectCard from '../components/ProjectCard.astro';
-import RepoTable from '../components/RepoTable.astro';
 import LeetCodeStats from '../components/LeetCodeStats.astro';
 import ContributionGraph from '../components/ContributionGraph.astro';
 
@@ -92,12 +91,15 @@ const publicRepoCount = featuredProjects.length + archiveProjects.length;
         <SectionHead
           id="projects"
           title="Things I've built on my own time."
-          lede={`Real-time vision, ML and side projects. Featured work first, then the rest of my ${publicRepoCount} public repositories, refreshed from GitHub every week.`}
+          lede="Real-time vision, NLP and ML work, including the notebook I taught a workshop from. Each card's GitHub details refresh every week."
         />
         <div class="project-grid">
-          {featuredProjects.map((p, i) => <ProjectCard project={p} index={i} />)}
+          {
+            featuredProjects.map((p, i, all) => (
+              <ProjectCard project={p} index={i} wide={all.length % 2 === 1 && i === all.length - 1} />
+            ))
+          }
         </div>
-        {archiveProjects.length > 0 && <RepoTable projects={archiveProjects} />}
       </section>
 
       <!-- 0x05 Activity -->

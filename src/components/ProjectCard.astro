@@ -5,58 +5,64 @@ import { freshness } from '../lib/format';
 interface Props {
   project: Project;
   index: number;
+  /** Span the full grid width, with details in a second column (used for an odd last card). */
+  wide?: boolean;
 }
 
-const { project, index } = Astro.props;
+const { project, index, wide = false } = Astro.props;
 const c = project.curated;
 const r = project.repo;
 const highlights = c?.highlights ?? [];
 const stack = c?.stack ?? (r?.language ? [r.language] : []);
 ---
 
-<article class="project" data-reveal aria-labelledby={`p-${project.name}`}>
-  <p class="index mono">P/{String(index + 1).padStart(2, '0')}</p>
+<article class:list={['project', { wide }]} data-reveal aria-labelledby={`p-${project.name}`}>
+  <div class="lead">
+    <p class="index mono">P/{String(index + 1).padStart(2, '0')}</p>
 
-  {
-    c?.metric && (
-      <p class="metric">
-        <span class="value">{c.metric.value}</span>
-        <span class="label">{c.metric.label}</span>
-      </p>
-    )
-  }
-
-  <h3 id={`p-${project.name}`} class="display">{project.title}</h3>
-  <p class="tagline">{project.tagline}</p>
-
-  {
-    highlights.length > 0 && (
-      <ul class="highlights">
-        {highlights.map((h) => (
-          <li>{h}</li>
-        ))}
-      </ul>
-    )
-  }
-
-  <ul class="tags" aria-label="Stack">
-    {stack.map((s) => <li>{s}</li>)}
-  </ul>
-
-  <footer>
-    <a href={project.url} rel="noopener">Code<span aria-hidden="true"> ↗</span></a>
     {
-      c?.demo && (
-        <a href={c.demo.url} rel="noopener">
-          {c.demo.label}
-          <span aria-hidden="true"> ↗</span>
-        </a>
+      c?.metric && (
+        <p class="metric">
+          <span class="value">{c.metric.value}</span>
+          <span class="label">{c.metric.label}</span>
+        </p>
       )
     }
-    <span class="meta mono">
-      {[c?.note, r && `updated ${freshness(r.pushedAt)}`].filter(Boolean).join(' · ')}
-    </span>
-  </footer>
+
+    <h3 id={`p-${project.name}`} class="display">{project.title}</h3>
+    <p class="tagline">{project.tagline}</p>
+  </div>
+
+  <div class="detail">
+    {
+      highlights.length > 0 && (
+        <ul class="highlights">
+          {highlights.map((h) => (
+            <li>{h}</li>
+          ))}
+        </ul>
+      )
+    }
+
+    <ul class="tags" aria-label="Stack">
+      {stack.map((s) => <li>{s}</li>)}
+    </ul>
+
+    <footer>
+      <a href={project.url} rel="noopener">Code<span aria-hidden="true"> ↗</span></a>
+      {
+        c?.demo && (
+          <a href={c.demo.url} rel="noopener">
+            {c.demo.label}
+            <span aria-hidden="true"> ↗</span>
+          </a>
+        )
+      }
+      <span class="meta mono">
+        {[c?.note, r && `updated ${freshness(r.pushedAt)}`].filter(Boolean).join(' · ')}
+      </span>
+    </footer>
+  </div>
 </article>
 
 <style>
@@ -66,6 +72,12 @@ const stack = c?.stack ?? (r?.language ? [r.language] : []);
     gap: 12px;
     padding: 22px 0 26px;
     border-top: 1px solid var(--ink);
+  }
+
+  /* Wrappers only matter for the wide layout; normally children flow as one column. */
+  .lead,
+  .detail {
+    display: contents;
   }
 
   .index {
@@ -130,5 +142,25 @@ const stack = c?.stack ?? (r?.language ? [r.language] : []);
     margin-left: auto;
     font-weight: 400;
     color: var(--muted);
+  }
+
+  @media (min-width: 860px) {
+    .project.wide {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0 48px;
+    }
+
+    .wide .lead,
+    .wide .detail {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .wide .detail {
+      padding-top: 30px;
+    }
   }
 </style>
