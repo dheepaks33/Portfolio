@@ -1,21 +1,21 @@
 {
-  "syncedAt": "2026-10-05T10:09:25.007Z",
+  "syncedAt": "2026-10-12T10:26:41.219Z",
   "status": {
     "profile": {
       "ok": true,
-      "at": "2026-10-05T10:09:25.007Z"
+      "at": "2026-10-12T10:26:41.219Z"
     },
     "repos": {
       "ok": true,
-      "at": "2026-10-05T10:09:25.007Z"
+      "at": "2026-10-12T10:26:41.219Z"
     },
     "contributions": {
       "ok": true,
-      "at": "2026-10-05T10:09:25.007Z"
+      "at": "2026-10-12T10:26:41.219Z"
     },
     "leetcode": {
       "ok": true,
-      "at": "2026-10-05T10:09:25.007Z"
+      "at": "2026-10-12T10:26:41.219Z"
     }
   },
   "profile": {
@@ -24,10 +24,30 @@
     "avatarUrl": "https://avatars.githubusercontent.com/u/145792285?v=4",
     "url": "https://github.com/dheepaks33",
     "followers": 8,
-    "publicRepos": 12,
+    "publicRepos": 13,
     "createdAt": "2023-09-22T16:10:37Z"
   },
   "repos": [
+    {
+      "name": "mmm-cpu",
+      "url": "https://github.com/dheepaks33/mmm-cpu",
+      "description": null,
+      "excerpt": "This code reproduces every step of Simon Boehm's article (https://siboehm.com/articles/22/Fast-MMM-on-CPU) on your own machine. A benchmark harness records everything you need to compare runs. The same commands work…",
+      "homepage": null,
+      "language": "Python",
+      "languages": {
+        "Python": 39756,
+        "C++": 29159,
+        "Makefile": 2713
+      },
+      "topics": [],
+      "stars": 0,
+      "forks": 0,
+      "fork": false,
+      "archived": false,
+      "createdAt": "2026-10-08T06:58:12Z",
+      "pushedAt": "2026-10-08T06:58:21Z"
+    },
     {
       "name": "Portfolio",
       "url": "https://github.com/dheepaks33/Portfolio",
@@ -47,7 +67,7 @@
       "fork": false,
       "archived": false,
       "createdAt": "2024-07-04T18:48:47Z",
-      "pushedAt": "2026-10-04T12:53:18Z"
+      "pushedAt": "2026-10-05T10:09:28Z"
     },
     {
       "name": "Sentence-Saliency-System",
@@ -252,36 +272,8 @@
     }
   ],
   "contributions": {
-    "total": 17,
+    "total": 19,
     "days": [
-      {
-        "date": "2025-10-05",
-        "count": 0
-      },
-      {
-        "date": "2025-10-06",
-        "count": 0
-      },
-      {
-        "date": "2025-10-07",
-        "count": 0
-      },
-      {
-        "date": "2025-10-08",
-        "count": 0
-      },
-      {
-        "date": "2025-10-09",
-        "count": 0
-      },
-      {
-        "date": "2025-10-10",
-        "count": 0
-      },
-      {
-        "date": "2025-10-11",
-        "count": 0
-      },
       {
         "date": "2025-10-12",
         "count": 0
@@ -1717,6 +1709,34 @@
       {
         "date": "2026-10-05",
         "count": 0
+      },
+      {
+        "date": "2026-10-06",
+        "count": 0
+      },
+      {
+        "date": "2026-10-07",
+        "count": 0
+      },
+      {
+        "date": "2026-10-08",
+        "count": 2
+      },
+      {
+        "date": "2026-10-09",
+        "count": 0
+      },
+      {
+        "date": "2026-10-10",
+        "count": 0
+      },
+      {
+        "date": "2026-10-11",
+        "count": 0
+      },
+      {
+        "date": "2026-10-12",
+        "count": 0
       }
     ]
   },
@@ -1730,15 +1750,15 @@
       "hard": 35
     },
     "totals": {
-      "all": 4073,
-      "easy": 969,
-      "medium": 2124,
-      "hard": 980
+      "all": 4081,
+      "easy": 971,
+      "medium": 2128,
+      "hard": 982
     },
     "contest": {
       "rating": 1564,
       "attended": 17,
-      "topPercentage": 30.08
+      "topPercentage": 30.11
     }
   }
 }
